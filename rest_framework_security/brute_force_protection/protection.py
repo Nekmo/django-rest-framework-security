@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from rest_framework_security.brute_force_protection import config
 from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionException, \
-    BruteForceProtectionBanException
+    BruteForceProtectionBanException, BruteForceProtectionCaptchaException
 
 
 class BruteForceProtection:
@@ -35,4 +35,4 @@ class BruteForceProtection:
         if attemps >= config.BRUTE_FORCE_PROTECTION_BAN_LIMIT:
             raise BruteForceProtectionBanException('Your ip has been banned after several login attempts.')
         if attemps >= config.BRUTE_FORCE_PROTECTION_SOFT_LIMIT and not self.get_soft_status():
-            raise BruteForceProtectionException('Captcha is mandatory')
+            raise BruteForceProtectionCaptchaException('Captcha is mandatory')
