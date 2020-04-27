@@ -21,7 +21,7 @@ class BruteForceProtection:
         return cache.get(self.get_cache_soft_key(), default=False)
 
     def set_soft_status(self, value):
-        cache.set(self.get_cache_attemps_key(), value,
+        cache.set(self.get_cache_soft_key(), value,
                   config.BRUTE_FORCE_PROTECTION_SOFT_EXPIRATION)
 
     def increase_attempts(self):
