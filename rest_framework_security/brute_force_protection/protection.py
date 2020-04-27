@@ -25,9 +25,9 @@ class BruteForceProtection:
                   config.BRUTE_FORCE_PROTECTION_SOFT_EXPIRATION)
 
     def increase_attempts(self):
-        if cache.get(self.get_cache_attemps_key()) is None:
-            cache.set(self.get_cache_attemps_key(), 0, config.BRUTE_FORCE_PROTECTION_EXPIRATION)
-        cache.incr(self.get_cache_attemps_key())
+        key = self.get_cache_attemps_key()
+        cache.add(key, 0, config.BRUTE_FORCE_PROTECTION_EXPIRATION)
+        cache.incr(key)
         self.set_soft_status(False)
 
     def validate(self):
