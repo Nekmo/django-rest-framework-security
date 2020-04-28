@@ -22,8 +22,8 @@ class UserIp(models.Model):
 
 
 class UserIpSettings(models.Model):
-    unknown_ip_action = models.CharField(max_length=12, choices=IP_ACTIONS,
-                                         default=config.ALLOW_IPS_DEFAULT_UNKNOWN_IP_ACTION)
+    default_ip_action = models.CharField(max_length=12, choices=IP_ACTIONS,
+                                         default=config.ALLOW_IPS_DEFAULT_DEFAULT_IP_ACTION)
 
     class Meta:
         abstract = True
