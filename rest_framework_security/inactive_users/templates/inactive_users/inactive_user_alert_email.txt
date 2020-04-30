@@ -4,7 +4,7 @@
 {% blocktrans %}Hello {{ user.first_name }} {{ user.last_name }},{% endblocktrans %}
 
 {% blocktrans %}You have not authenticated with your user {{ user.get_username }} to the website
-{{ site_name }} in the last {{ months }} months.
+{{ site_name }} since {% timesince user.last_login %}.
 For security reasons, your account will be deactivated soon. To prevent your account from being
 disabled, access the website with your username and password.
 {% endblocktrans %}
