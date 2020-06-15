@@ -1,0 +1,3 @@
+{% load i18n %}{% autoescape off %}
+{% blocktrans %}New access to your {{ user.get_username }} account in {{ site_name }}{% endblocktrans %}
+{% endautoescape %}
