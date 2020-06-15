@@ -5,8 +5,8 @@
 
 {% blocktrans %}You have not authenticated with your user {{ user.get_username }} to the website
 {{ site_name }} since {% timesince user.last_login %}.
-For security reasons, your account will be deactivated soon. To prevent your account from being
-disabled, access the website with your username and password.
+For security reasons, your account will be deactivated in {{ remaining_days }} days.
+To prevent your account from being disabled, access the website with your username and password.
 {% endblocktrans %}
 
 {% blocktrans %}For security reasons, the link to the website is not found in this email.

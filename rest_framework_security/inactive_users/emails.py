@@ -11,15 +11,17 @@ class InactiveUserAlertEmail(object):
     email_template_name = 'inactive_users/inactive_user_alert_email.txt'
     html_email_template_name = 'inactive_users/inactive_user_alert_email.txt'
 
-    def __init__(self, user, connection=None, site_id=1):
+    def __init__(self, user, connection=None, remaining_days=30, site_id=1):
         self.user = user
         self.connection = connection
+        self.remaining_days = remaining_days
         self.site_id = site_id
 
     def get_context(self):
         return {
             'user': self.user,
             'site_name': self.site_name,
+            'remaining_days': self.remaining_days,
         }
 
     @property
