@@ -1,0 +1,18 @@
+{% load i18n %}{% autoescape off %}
+
+
+{% blocktrans %}Hello {{ user.first_name }} {{ user.last_name }},{% endblocktrans %}
+
+{% blocktrans %}We have written to you {{ remaining_days }} days ago because you have not authenticated
+your account since {% timesince user.last_login %} with your user {{ user.get_username }}
+to the website {{ site_name }}. By not having authenticated your account, we have deactivated it
+for security reasons.
+{% endblocktrans %}
+
+{% blocktrans %}Your credentials have been disabled and it is no longer possible to
+ authenticate using the username {{ user.get_username }}.
+{% blocktrans %}
+
+{% blocktrans %}The {{ site_name }} team{% endblocktrans %}
+
+{% endautoescape %}

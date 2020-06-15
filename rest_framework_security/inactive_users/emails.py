@@ -47,3 +47,9 @@ class InactiveUserAlertEmail(object):
             email_message.attach_alternative(html_email, 'text/html')
 
         email_message.send()
+
+
+class InactiveUserEmail(InactiveUserAlertEmail):
+    subject_template_name = 'inactive_users/inactive_user_subject.txt'
+    email_template_name = 'inactive_users/inactive_user_email.txt'
+    html_email_template_name = 'inactive_users/inactive_user_email.txt'
