@@ -26,7 +26,7 @@ class UserIp(models.Model):
 
 class UserIpSettingsBase(models.Model):
     default_ip_action = models.CharField(max_length=12, choices=IP_ACTIONS,
-                                         default=config.ALLOW_IPS_DEFAULT_DEFAULT_IP_ACTION)
+                                         default=config.ALLOWED_IPS_DEFAULT_IP_ACTION)
 
     class Meta:
         abstract = True

@@ -1,6 +1,6 @@
 from django.conf import settings
 
-ALLOW_IPS_DEFAULT_DEFAULT_IP_ACTION = ''
+ALLOWED_IPS_DEFAULT_IP_ACTION = 'warn'
 ALLOWED_IPS_USER_IP_CONFIG_MODEL = ''
 
 # Override my settings usign Django Settings
