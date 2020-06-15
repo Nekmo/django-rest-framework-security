@@ -20,8 +20,11 @@ class UserIp(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('ip_address', 'user')
 
-class UserIpSettings(models.Model):
+
+class UserIpSettingsBase(models.Model):
     default_ip_action = models.CharField(max_length=12, choices=IP_ACTIONS,
                                          default=config.ALLOW_IPS_DEFAULT_DEFAULT_IP_ACTION)
 
