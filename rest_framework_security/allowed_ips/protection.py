@@ -26,4 +26,4 @@ class AllowedIpsProtection:
         """
         ip: Union[UserIp, None] = UserIp.objects.filter(user=self.user, ip_address=self.ip).first()
         action = ip.action if ip else None
-        return action or get_default_ip_action(self.user), not bool(action)
+        return action or get_default_ip_action(self.user), action is None
