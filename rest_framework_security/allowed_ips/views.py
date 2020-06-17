@@ -4,6 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from customers.permissions import IsOwner
 from rest_framework_security.allowed_ips import config
+from rest_framework_security.allowed_ips.models import UserIp
 from rest_framework_security.allowed_ips.serializers import UserIpSerializer, CreateUserIpSerializer, \
     UserIpConfigSerializer
 from rest_framework_security.views import IsOwnerViewSetMixin
@@ -14,8 +15,6 @@ class UserIpViewSet(IsOwnerViewSetMixin, ModelViewSet):
     permission_classes = (
         IsOwner,
     )
-    authentication_classes = (
-    )
     filter_backends = (filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend)
     search_fields = (
         'ip_address', 'action'
@@ -24,6 +23,7 @@ class UserIpViewSet(IsOwnerViewSetMixin, ModelViewSet):
     ordering_fields = (
         'id', 'ip_address', 'action', 'last_used_at', 'created_at', 'updated_at',
     )
+    queryset = UserIp.objects.all()
 
     def get_serializer_class(self):
         if self.action == 'create':

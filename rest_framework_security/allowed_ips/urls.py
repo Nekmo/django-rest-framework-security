@@ -1,10 +1,14 @@
-from django.urls import path
+from django.conf.urls import url
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 
-from rest_framework_security.allowed_ips.models import UserIp
-from rest_framework_security.allowed_ips.views import UserIpConfigViewSet
+from rest_framework_security.allowed_ips.views import UserIpConfigViewSet, UserIpViewSet
+
+router = DefaultRouter()
+router.register('user_ips', UserIpViewSet)
+router.register('user_ip_configs', UserIpConfigViewSet, basename='user_ip_config')
 
 
 urlpatterns = [
-    path('user_ips/', UserIp.as_view()),
-    path('user_ip_configs/', UserIpConfigViewSet.as_view()),
+    url(r'^', include(router.urls)),
 ]
