@@ -35,6 +35,7 @@ class EmailBase:
     def send(self):
         context = self.get_context()
         subject = loader.render_to_string(self.subject_template_name, context)
+        subject = subject.replace('\n', '')
         body = loader.render_to_string(self.email_template_name, context)
         email_message = EmailMultiAlternatives(subject, body, self.from_email, [self.to_email],
                                                connection=self.connection)

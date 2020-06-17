@@ -11,6 +11,10 @@ class WarnNewIpEmail(EmailBase):
         super(WarnNewIpEmail, self).__init__(user, connection, site_id)
         self.ip = ip
 
+    def get_context(self):
+        return dict(super(WarnNewIpEmail, self).get_context(),
+                    ip=self.ip)
+
     @property
     def from_email(self):
         return config.ALLOWED_IPS_FROM_EMAIL or super(WarnNewIpEmail, self).from_email

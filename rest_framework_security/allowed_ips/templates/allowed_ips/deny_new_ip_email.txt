@@ -1,16 +1,16 @@
 {% load i18n %}{% autoescape off %}
 
+{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username profile_url=config.ALLOWED_IPS_PROFILE_URL %}
+Hello {{ first_name }} {{ last_name }},
 
-{% blocktrans %}Hello {{ user.first_name }} {{ user.last_name }},
-
-We have detected a new access to your account {{ user.get_username }} in {{ site_name }} from an unknown location.
+We have detected a new access to your account {{ username }} in {{ site_name }} from an unknown location.
 
 Ip address: {{ ip }}
 
 Access has been blocked from this new location. If it was you, you need to authorize this new IP from
 your user profile. If you have not tried to authenticate from this location you must change your credentials.
 
-{{ config.ALLOWED_IPS_PROFILE_URL }}
+{{ profile_url }}
 {% endblocktrans %}
 
 {% blocktrans %}For security reasons, we recommend that you copy the email link

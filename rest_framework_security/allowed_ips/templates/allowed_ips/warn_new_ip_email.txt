@@ -1,16 +1,16 @@
 {% load i18n %}{% autoescape off %}
 
+{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username profile_url=config.ALLOWED_IPS_PROFILE_URL %}
+Hello {{ first_name }} {{ last_name }},
 
-{% blocktrans %}Hello {{ user.first_name }} {{ user.last_name }},
-
-We have detected a new access to your account {{ user.get_username }} in {{ site_name }} from an unknown location.
+We have detected a new access to your account {{ username }} in {{ site_name }} from an unknown location.
 
 Ip address: {{ ip }}
 
 You don't need to do anything else if it was you. Otherwise, access your user profile to request
 a password change and review the authorized ips.
 
-{{ config.ALLOWED_IPS_PROFILE_URL }}
+{{ profile_url }}
 {% endblocktrans %}
 
 {% blocktrans %}For security reasons, we recommend that you copy the email link
