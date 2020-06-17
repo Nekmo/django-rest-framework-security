@@ -1,0 +1,21 @@
+{% load i18n %}{% autoescape off %}
+
+
+{% blocktrans %}Hello {{ user.first_name }} {{ user.last_name }},
+
+We have detected a access to your account {{ user.get_username }} in {{ site_name }} from:
+
+Ip address: {{ ip }}
+
+You are receiving this email because you have configured the reception of alerts
+after authenticating from this IP. You can change these alerts in your user profile:
+
+{{ config.ALLOWED_IPS_PROFILE_URL }}
+{% endblocktrans %}
+
+{% blocktrans %}For security reasons, we recommend that you copy the email link
+and carefully check the url.{% endblocktrans %}
+
+{% blocktrans %}The {{ site_name }} team{% endblocktrans %}
+
+{% endautoescape %}
