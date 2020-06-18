@@ -3,11 +3,13 @@ from typing import Type
 
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.sessions.backends.base import SessionBase
+from django.utils import timezone
 from django.utils.module_loading import import_string
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from rest_framework_security.authentication import config
+from rest_framework_security.utils import get_client_ip
 
 
 class LoginSerializer(serializers.Serializer):
@@ -47,16 +49,20 @@ class LoginSerializer(serializers.Serializer):
         }
 
     def create(self, validated_data):
-        session: SessionBase = self.context['request'].session
-        session_age = config.AUTHENTICATION_REMEMBER_ME_SESSION_AGE if validated_data.get('remember_me') \
-            else config.AUTHENTICATION_SESSION_AGE
-        max_age = config.AUTHENTICATION_REMEMBER_ME_MAX_AGE if validated_data.get('remember_me') \
-            else config.AUTHENTICATION_MAX_AGE
+        request = self.context['request']
+        session: SessionBase = request.session
+        session_age = config.get_session_age(validated_data.get('remember_me'))
+        max_age = config.get_max_age(validated_data.get('remember_me'))
+        max_session_renewal = timezone.now() + datetime.timedelta(seconds=max_age)
         session.set_expiry(session_age)
+        session['session_updated_at'] = timezone.now().isoformat()
+        session['max_session_renewal'] = max_session_renewal.isoformat()
+        session['remember_me'] = validated_data['remember_me']
+        session['ip_address'] = get_client_ip(request)
         session.cycle_key()
         return {
             'user': validated_data['user'],
             'session_expires': datetime.datetime.now() + datetime.timedelta(seconds=session_age),
-            'max_session_renewal': datetime.datetime.now() + datetime.timedelta(seconds=max_age),
+            'max_session_renewal': max_session_renewal,
             'next_steps': [],
         }
