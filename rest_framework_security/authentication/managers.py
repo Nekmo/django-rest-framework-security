@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from rest_framework_security.authentication.utils import get_session_store_class
 
@@ -10,6 +11,9 @@ class UserSessionQuerySet(models.QuerySet):
             get_session_store_class()(session_key).delete()
         return self.delete()
 
+    def expired(self):
+        return self.filter(session_expires__lt=timezone.now())
+
 
 class UserSessionManager(models.Manager):
     def get_queryset(self):
@@ -17,3 +21,6 @@ class UserSessionManager(models.Manager):
 
     def clean_and_delete(self):
         return self.get_queryset().clean_and_delete()
+
+    def expired(self):
+        return self.get_queryset().expired()
