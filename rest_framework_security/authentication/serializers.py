@@ -1,7 +1,7 @@
 import datetime
 from typing import Type
 
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model, authenticate, logout, login
 from django.contrib.sessions.backends.base import SessionBase
 from django.utils import timezone
 from django.utils.module_loading import import_string
@@ -54,15 +54,22 @@ class LoginSerializer(serializers.Serializer):
         session_age = config.get_session_age(validated_data.get('remember_me'))
         max_age = config.get_max_age(validated_data.get('remember_me'))
         max_session_renewal = timezone.now() + datetime.timedelta(seconds=max_age)
+        login(request, validated_data['user'])
         session.set_expiry(session_age)
         session['session_updated_at'] = timezone.now().isoformat()
         session['max_session_renewal'] = max_session_renewal.isoformat()
         session['remember_me'] = validated_data['remember_me']
         session['ip_address'] = get_client_ip(request)
-        session.cycle_key()
         return {
             'user': validated_data['user'],
             'session_expires': datetime.datetime.now() + datetime.timedelta(seconds=session_age),
             'max_session_renewal': max_session_renewal,
             'next_steps': [],
         }
+
+
+class LogoutSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        request = self.context['request']
+        logout(request)
+        return {}

@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth import logout
 from django.contrib.sessions.backends.base import SessionBase
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -21,7 +22,7 @@ class AuthenticationMiddleware:
         renew_time = datetime.timedelta(seconds=config.AUTHENTICATION_RENEW_TIME)
         now = timezone.now()
         if ip_address and ip_address != get_client_ip(request):
-            session.flush()
+            logout(request)
         elif session_updated_at and max_session_renewal and \
                 session_updated_at + renew_time < now and \
                 max_session_renewal < now:
