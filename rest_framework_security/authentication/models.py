@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.backends.base import SessionBase
 from django.db import models
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework_security.authentication.managers import UserSessionManager
@@ -19,6 +20,32 @@ class UserSession(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserSessionManager()
+
+    @cached_property
+    def parsed_user_agent(self):
+        try:
+            from user_agents import parse
+        except ImportError:
+            return
+        return parse(self.user_agent)
+
+    @property
+    def browser(self):
+        if self.parsed_user_agent is None:
+            return
+        return f'{self.parsed_user_agent.browser.family} {self.parsed_user_agent.browser.version_string}'
+
+    @property
+    def os(self):
+        if self.parsed_user_agent is None:
+            return
+        return f'{self.parsed_user_agent.os.family} {self.parsed_user_agent.os.version_string}'
+
+    @property
+    def device(self):
+        if self.parsed_user_agent is None:
+            return
+        return f'{self.parsed_user_agent.is_pc and "PC" or self.parsed_user_agent.device.family}'
 
     @property
     def session_store(self) -> SessionBase:

@@ -93,6 +93,6 @@ class UserSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSession
         fields = (
-            'url', 'id', 'ip_address', 'user_agent', 'session_expires', 'max_session_renewal', 'created_at',
-            'updated_at'
+            'url', 'id', 'ip_address', 'user_agent', 'browser', 'os', 'device', 'session_expires',
+            'max_session_renewal', 'created_at', 'updated_at'
         )

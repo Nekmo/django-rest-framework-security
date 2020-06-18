@@ -27,13 +27,13 @@ class AuthenticationMiddleware:
             logout(request)
         elif session_updated_at and max_session_renewal and \
                 session_updated_at + renew_time < now and \
-                max_session_renewal < now:
+                max_session_renewal >= now:
             remember_me = session.get('remember_me')
             session.set_expiry(config.get_session_age(remember_me))
             session['session_updated_at'] = now.isoformat()
             user_session: Union[UserSession, None] = UserSession.objects.filter(
                 user=request.user,
-                ession_key=session.session_key
+                session_key=session.session_key
             ).first()
             if user_session:
                 session_expires = now + datetime.timedelta(
