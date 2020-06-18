@@ -84,6 +84,8 @@ class LoginSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context['request']
+        session: SessionBase = request.session
+        UserSession.objects.filter(user=request.user, session_key=session.session_key).delete()
         logout(request)
         return {}
 
