@@ -1,7 +1,16 @@
+from django.contrib.sessions.backends.base import SessionBase
+from django.contrib.sessions.models import Session
+from rest_framework import viewsets, serializers
+from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from rest_framework_security.authentication.serializers import LoginSerializer, LogoutSerializer
+from rest_framework_security.authentication.models import UserSession
+from rest_framework_security.authentication.serializers import LoginSerializer, LogoutSerializer, UserSessionSerializer
+from rest_framework_security.views import IsOwnerViewSetMixin
+from django.utils.translation import gettext_lazy as _
 
 
 class PostApiViewMixin:
@@ -19,4 +28,23 @@ class LoginAPIView(PostApiViewMixin, GenericAPIView):
 
 class LogoutAPIView(PostApiViewMixin, GenericAPIView):
     serializer_class = LogoutSerializer
-    permission_classes = ()
+    permission_classes = (IsAuthenticated,)
+
+
+class UserSessionAPIView(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, ReadOnlyModelViewSet):
+    serializer_class = UserSessionSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = UserSession.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'purge':
+            return serializers.Serializer
+        else:
+            return super(UserSessionAPIView, self).get_serializer_class()
+
+    @action(detail=False, methods=['POST'])
+    def purge(self, request, *args, **kwargs):
+        session: SessionBase = request.session
+        queryset = self.filter_queryset(self.get_queryset()).exclude(session_key=session.session_key)
+        count = queryset.clean_and_delete()[0]
+        return Response({'detail': _('Removed {} sessions').format(count)})

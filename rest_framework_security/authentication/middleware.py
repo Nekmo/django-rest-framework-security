@@ -1,4 +1,5 @@
 import datetime
+from typing import Union
 
 from django.contrib.auth import logout
 from django.contrib.sessions.backends.base import SessionBase
@@ -6,6 +7,7 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from rest_framework_security.authentication import config
+from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.utils import get_client_ip
 
 
@@ -29,5 +31,15 @@ class AuthenticationMiddleware:
             remember_me = session.get('remember_me')
             session.set_expiry(config.get_session_age(remember_me))
             session['session_updated_at'] = now.isoformat()
+            user_session: Union[UserSession, None] = UserSession.objects.filter(
+                user=request.user,
+                ession_key=session.session_key
+            ).first()
+            if user_session:
+                session_expires = now + datetime.timedelta(
+                    seconds=config.get_session_age(remember_me)
+                )
+                user_session.session_expires = session_expires
+                user_session.save()
         response = self.get_response(request)
         return response

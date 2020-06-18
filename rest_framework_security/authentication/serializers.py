@@ -9,6 +9,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from rest_framework_security.authentication import config
+from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.utils import get_client_ip
 
 
@@ -51,15 +52,27 @@ class LoginSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context['request']
         session: SessionBase = request.session
+        now = timezone.now()
         session_age = config.get_session_age(validated_data.get('remember_me'))
         max_age = config.get_max_age(validated_data.get('remember_me'))
-        max_session_renewal = timezone.now() + datetime.timedelta(seconds=max_age)
+        max_session_renewal = now + datetime.timedelta(seconds=max_age)
+        ip_address = get_client_ip(request)
+        user_agent = request.META['HTTP_USER_AGENT']
         login(request, validated_data['user'])
         session.set_expiry(session_age)
-        session['session_updated_at'] = timezone.now().isoformat()
+        session['session_updated_at'] = now.isoformat()
         session['max_session_renewal'] = max_session_renewal.isoformat()
         session['remember_me'] = validated_data['remember_me']
-        session['ip_address'] = get_client_ip(request)
+        session['ip_address'] = ip_address
+        UserSession.objects.get_or_create(
+            session_key=session.session_key, user=validated_data['user'],
+            defaults={
+                'ip_address': ip_address,
+                'user_agent': user_agent,
+                'session_expires': now + datetime.timedelta(seconds=max_age),
+                'max_session_renewal': max_session_renewal,
+            }
+        )
         return {
             'user': validated_data['user'],
             'session_expires': datetime.datetime.now() + datetime.timedelta(seconds=session_age),
@@ -73,3 +86,13 @@ class LogoutSerializer(serializers.Serializer):
         request = self.context['request']
         logout(request)
         return {}
+
+
+class UserSessionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserSession
+        fields = (
+            'url', 'id', 'ip_address', 'user_agent', 'session_expires', 'max_session_renewal', 'created_at',
+            'updated_at'
+        )
