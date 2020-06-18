@@ -7,6 +7,7 @@ AUTHENTICATION_REMEMBER_ME_MAX_AGE = 60 * 60 * 24 * 30
 AUTHENTICATION_RENEW_TIME = 60 * 5
 AUTHENTICATION_USER_SERIALIZER = ''
 AUTHENTICATION_VALIDATE_IP = True
+AUTHENTICATION_MAX_ACTIVE_SESSIONS = 0
 
 # Override my settings usign Django Settings
 for var_name, value in dict(locals()).items():

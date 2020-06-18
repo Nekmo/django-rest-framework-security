@@ -64,6 +64,8 @@ class LoginSerializer(serializers.Serializer):
         session['max_session_renewal'] = max_session_renewal.isoformat()
         session['remember_me'] = validated_data['remember_me']
         session['ip_address'] = ip_address
+        user_sessions = UserSession.objects.filter(user=validated_data['user'])
+        user_sessions.expired().clean_and_delete()
         UserSession.objects.get_or_create(
             session_key=session.session_key, user=validated_data['user'],
             defaults={
@@ -73,6 +75,12 @@ class LoginSerializer(serializers.Serializer):
                 'max_session_renewal': max_session_renewal,
             }
         )
+        if config.AUTHENTICATION_MAX_ACTIVE_SESSIONS \
+                and user_sessions.count() > config.AUTHENTICATION_MAX_ACTIVE_SESSIONS:
+            user_sessions = user_sessions.order_by('-created_at')
+            first_last = user_sessions[config.AUTHENTICATION_MAX_ACTIVE_SESSIONS]
+            to_remove = user_sessions.filter(pk__lte=first_last.pk)
+            to_remove.delete()
         return {
             'user': validated_data['user'],
             'session_expires': datetime.datetime.now() + datetime.timedelta(seconds=session_age),
