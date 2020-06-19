@@ -10,6 +10,6 @@ router.register('user_sessions', UserSessionAPIView)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    path('login/', LoginAPIView.as_view()),
-    path('logout/', LogoutAPIView.as_view()),
+    path('login/', LoginAPIView.as_view(), name='authentication-login'),
+    path('logout/', LogoutAPIView.as_view(), name='authentication-logout'),
 ]
