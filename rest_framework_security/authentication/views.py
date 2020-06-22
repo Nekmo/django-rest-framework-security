@@ -9,6 +9,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.authentication.serializers import LoginSerializer, LogoutSerializer, UserSessionSerializer
+from rest_framework_security.brute_force_protection.views import protect_api_request
 from rest_framework_security.views import IsOwnerViewSetMixin
 from django.utils.translation import gettext_lazy as _
 
@@ -24,6 +25,10 @@ class PostApiViewMixin:
 class LoginAPIView(PostApiViewMixin, GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = ()
+
+    @protect_api_request(True)
+    def post(self, request, *args, **kwargs):
+        return super(LoginAPIView, self).post(request, *args, **kwargs)
 
 
 class LogoutAPIView(PostApiViewMixin, GenericAPIView):
