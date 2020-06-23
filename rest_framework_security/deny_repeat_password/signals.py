@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
@@ -13,5 +14,8 @@ password_changed = Signal(providing_args=['user'])
 def set_user_password_receiver(sender, instance, **kwargs):
     user_password, created = UserPassword.objects.get_or_create(user=instance, password=instance.password)
     UserPassword.objects.remove_old_passwords(instance)
+    if config.DENY_REPEAT_PASSWORD_CLOSE_SESSIONS and apps.is_installed('rest_framework_security.authentication'):
+        from rest_framework_security.authentication.models import UserSession
+        UserSession.objects.filter(user=instance).clean_and_delete()
     if created:
         password_changed.send(None, user=instance)

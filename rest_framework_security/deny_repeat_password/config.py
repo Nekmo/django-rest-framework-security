@@ -1,6 +1,7 @@
 from django.conf import settings
 
 DENY_REPEAT_PASSWORD_MAX_SAVED_PASSWORDS = 10
+DENY_REPEAT_PASSWORD_CLOSE_SESSIONS = True
 
 
 # Override my settings usign Django Settings
