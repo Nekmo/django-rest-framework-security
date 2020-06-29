@@ -1,2 +1,5 @@
 django-recaptcha
 django-bitfield
+pyotp
+webauthn
+qrcode

@@ -5,9 +5,11 @@ import webauthn
 from rest_framework.exceptions import ValidationError
 from webauthn.webauthn import AuthenticationRejectedException
 
-RP_ID = 'dev-local.hispasec.com'
-RP_NAME = 'webauthn demo localhost'
-ORIGIN = 'https://dev-local.hispasec.com:8443'
+from rest_framework_security.otp import config
+
+RP_ID = config.OTP_DOMAIN
+RP_NAME = config.OTP_NAME
+ORIGIN = config.OTP_ORIGIN
 CHALLENGE_DEFAULT_BYTE_LEN = 32
 
 
@@ -81,6 +83,7 @@ class WebAuthnEngine:
         otp_device.counter = sign_count
         otp_device.save()
         return {}
+
 
 def generate_challenge(challenge_len=CHALLENGE_DEFAULT_BYTE_LEN):
     """Generate a challenge of challenge_len bytes, Base64-encoded.

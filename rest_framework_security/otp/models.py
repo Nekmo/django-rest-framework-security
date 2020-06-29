@@ -19,7 +19,7 @@ DESTINATION_TYPES = [
 ]
 OTP_TYPE_ENGINES = {
     'hotp': 'rest_framework_security.otp.engines.hotp.HOTPEngine',
-    'totp': 'rest_framework_security.otp.engines.hotp.TOTPEngine',
+    'totp': 'rest_framework_security.otp.engines.totp.TOTPEngine',
     'webauthn': 'rest_framework_security.otp.engines.webauthn.WebAuthnEngine',
 }
 
