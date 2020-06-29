@@ -1,0 +1,13 @@
+{% load static %}
+<head>
+    <script src="{% static "rest_framework/js/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "otp/base64.js" %}"></script>
+    <script src="{% static "otp/webauthn.js" %}"></script>
+<body>
+    <h1>Register device</h1>
+    <form action="" onsubmit="beginRegister(); return false">
+        <label>Device name: <input type="text" name="title" id="device_name"></label>
+        <input type="submit" value="Register">
+    </form>
+</body>
+</head>

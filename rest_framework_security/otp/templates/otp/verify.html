@@ -1,0 +1,13 @@
+{% load static %}
+<head>
+    <script src="{% static "rest_framework/js/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "otp/base64.js" %}"></script>
+    <script src="{% static "otp/webauthn.js" %}"></script>
+    <body>
+        <h1>Authenticate</h1>
+        <form onsubmit="authenticate(document.getElementById('id_otp_device').value); return false">
+            {{ form }}
+            <input type="submit" value="Authenticate">
+        </form>
+    </body>
+</head>
