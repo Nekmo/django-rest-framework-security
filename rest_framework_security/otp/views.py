@@ -73,13 +73,16 @@ class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, Gene
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
-        if self.action in ['create_tokens', 'use_token']:
+        if self.action == 'use_token':
             return OTPStaticSerializer
+        elif self.action == 'create_tokens':
+            return serializers.Serializer
         else:
             return super(OTPStaticViewSet, self).get_serializer_class()
 
     @action(detail=False, methods=['POST'])
     def create_tokens(self, request, *args, **kwargs):
+        self.serializer_class = OTPStaticSerializer
         try:
             self.get_queryset().create_tokens(request.user)
         except OTPException as e:
@@ -97,8 +100,8 @@ class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, Gene
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class YubikeyView(TemplateView):
-    template_name = 'otp/yubikey.html'
+class RegisterView(TemplateView):
+    template_name = 'otp/register.html'
 
 
 class VerifyView(TemplateView):
