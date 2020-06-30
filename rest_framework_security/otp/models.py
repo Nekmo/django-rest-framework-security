@@ -1,9 +1,13 @@
+from base64 import b32encode
+from os import urandom
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from jsonfield import JSONField
 
+from rest_framework_security.otp.managers import OTPStaticManager
 from rest_framework_security.otp.utils import random_hex, obfuscate
 
 OTP_TYPES = [
@@ -26,6 +30,10 @@ OTP_TYPE_ENGINES = {
 
 def default_key():
     return random_hex(20)
+
+
+def random_token():
+    return b32encode(urandom(5)).decode('utf-8').lower()
 
 
 def get_engine_class(engine_name):
@@ -72,4 +80,6 @@ class OTPDevice(models.Model):
 class OTPStatic(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
                              related_name='otp_statics')
-    token = models.CharField(max_length=16)
+    token = models.CharField(max_length=16, default=random_token, editable=False)
+
+    objects = OTPStaticManager()

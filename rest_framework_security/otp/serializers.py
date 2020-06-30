@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from rest_framework_security.otp.models import OTPDevice, get_engine
+from rest_framework_security.otp.models import OTPDevice, get_engine, OTPStatic
 
 
 class OTPDeviceSerializer(serializers.ModelSerializer):
@@ -28,3 +28,22 @@ class OTPDeviceCreateSerializer(OTPDeviceSerializer):
 class OTPDeviceBeginRegisterSerializer(OTPDeviceSerializer):
     class Meta(OTPDeviceSerializer.Meta):
         fields = ('otp_type', 'destination_type')
+
+
+class OTPStaticSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=8, read_only=False)
+
+    class Meta:
+        model = OTPStatic
+        fields = ('token',)
+
+
+class OTPStaticObfuscatedSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField()
+
+    def get_token(self, obj):
+        return '*' * 8
+
+    class Meta:
+        model = OTPStatic
+        fields = ('token',)

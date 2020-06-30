@@ -1,18 +1,21 @@
 import io
 
 import qrcode
+from django.http import Http404
 from django.views.generic import TemplateView
-from rest_framework import viewsets, serializers, renderers
+from rest_framework import viewsets, serializers, renderers, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.settings import api_settings
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 
+from rest_framework_security.otp.exceptions import OTPException
 from rest_framework_security.otp.forms import SelectOTPDeviceForm
-from rest_framework_security.otp.models import OTPDevice, get_engine
+from rest_framework_security.otp.models import OTPDevice, get_engine, OTPStatic
 from rest_framework_security.otp.serializers import OTPDeviceSerializer, OTPDeviceBeginRegisterSerializer, \
-    OTPDeviceCreateSerializer
+    OTPDeviceCreateSerializer, OTPStaticSerializer, OTPStaticObfuscatedSerializer
 from rest_framework_security.views import IsOwnerViewSetMixin
 
 
@@ -62,6 +65,36 @@ class OTPDeviceViewSet(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, v
     def verify(self, request, *args, **kwargs):
         instance = self.get_object()
         return Response(instance.get_engine().verify(request, instance, request.data))
+
+
+class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, GenericViewSet):
+    serializer_class = OTPStaticObfuscatedSerializer
+    queryset = OTPStatic.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action in ['create_tokens', 'use_token']:
+            return OTPStaticSerializer
+        else:
+            return super(OTPStaticViewSet, self).get_serializer_class()
+
+    @action(detail=False, methods=['POST'])
+    def create_tokens(self, request, *args, **kwargs):
+        try:
+            self.get_queryset().create_tokens(request.user)
+        except OTPException as e:
+            raise ValidationError(f'{e}')
+        return self.list(request, *args, **kwargs)
+
+    @action(detail=False, methods=['POST'])
+    def use_token(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            self.get_queryset().use_token(request.user, serializer.validated_data['token'])
+        except self.get_queryset().model.DoesNotExist:
+            raise Http404
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class YubikeyView(TemplateView):
