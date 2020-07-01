@@ -153,30 +153,17 @@ const transformAssertionForServer = (newAssertion) => {
 };
 
 
-function utf8_to_b64( str ) {
-    return window.btoa(unescape(encodeURIComponent( str )));
-}
-
-
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 
 
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
 const webAuthnBeginRegister = function() {
 
     httpRequest(
         'post',
-        '/api/security/otp/otp_devices/begin_register/',
+        OTP_DEVICES_API_URL + 'begin_register/',
         {
             "otp_type": 'webauthn',
             "destination_type": "device"
@@ -194,7 +181,7 @@ const webAuthnBeginRegister = function() {
                     }
                     httpRequest(
                         'post',
-                        '/api/security/otp/otp_devices/',
+                        OTP_DEVICES_API_URL,
                         requestData,
                         function() {
                             alert('Verified');
@@ -207,7 +194,7 @@ const webAuthnBeginRegister = function() {
 const webAuthnAuthenticate = function (device_id) {
     httpRequest(
         'get',
-        '/api/security/otp/otp_devices/' + device_id + '/challenge/',
+        OTP_DEVICES_API_URL + device_id + '/challenge/',
         null,
         function (challenge) {
             const credencialsRequest = transformCredentialRequestOptions(challenge);
@@ -217,7 +204,7 @@ const webAuthnAuthenticate = function (device_id) {
                 const transformedAssertionForServer = transformAssertionForServer(assertion);
                 httpRequest(
                     'post',
-                    '/api/security/otp/otp_devices/' + device_id + '/verify/',
+                    OTP_DEVICES_API_URL + device_id + '/verify/',
                     transformedAssertionForServer,
                     function () {
                         alert('Authenticated');
