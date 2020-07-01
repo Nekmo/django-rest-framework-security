@@ -40,6 +40,33 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 
 
+function httpRequest(method, url, data, success) {
+    let xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.open(method, url, true);
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status === 200) {   // XMLHttpRequest.DONE == 4
+            let response = xmlhttp.responseText;
+            if(response) {
+                response = JSON.parse(response);
+            }
+            return success(response);
+        }
+    };
+
+    xmlhttp.setRequestHeader("Accept", "application/json");
+    if (!csrfSafeMethod(method)) {
+        xmlhttp.setRequestHeader("Content-Type", "application/json");
+        xmlhttp.setRequestHeader("X-CSRFToken", csrftoken);
+    }
+
+    if(data) {
+        data = JSON.stringify(data);
+    }
+    xmlhttp.send(data);
+}
+
+
 const transformCredentialCreateOptions = (credentialCreateOptionsFromServer) => {
     let {challenge, user} = credentialCreateOptionsFromServer;
     user.id = Uint8Array.from(
@@ -145,46 +172,57 @@ $.ajaxSetup({
     }
 });
 
-const beginRegister = function() {
+const webAuthnBeginRegister = function() {
 
-    $.post('/api/security/otp/otp_devices/begin_register/', {
-        "otp_type": 'webauthn',
-        "destination_type": "device"
-    }).done(function (data) {
-        navigator.credentials
-            .create({publicKey: transformCredentialCreateOptions(data)})
-            .then(res => {
-                const newAssertionForServer = transformNewAssertionForServer(res);
-                let requestData = {
-                    'title': $("#device_name").val(),
-                    'otp_type': 'webauthn',
-                    'destination_type': 'device',
-                    'data': newAssertionForServer,
-                }
-                $.ajax('/api/security/otp/otp_devices/', {
-                    data: JSON.stringify(requestData),
-                    contentType: 'application/json',
-                    type: 'POST',
-                }).done(function() {
-                    console.log('verified');
-                });
-            })
-            .catch(console.error);
-    });
+    httpRequest(
+        'post',
+        '/api/security/otp/otp_devices/begin_register/',
+        {
+            "otp_type": 'webauthn',
+            "destination_type": "device"
+        },
+        function (data) {
+            navigator.credentials
+                .create({publicKey: transformCredentialCreateOptions(data)})
+                .then(res => {
+                    const newAssertionForServer = transformNewAssertionForServer(res);
+                    let requestData = {
+                        'title': $("#device_name").val(),
+                        'otp_type': 'webauthn',
+                        'destination_type': 'device',
+                        'data': newAssertionForServer,
+                    }
+                    httpRequest(
+                        'post',
+                        '/api/security/otp/otp_devices/',
+                        requestData,
+                        function() {
+                            alert('Verified');
+                        });
+                })
+                .catch(console.error);
+        });
 }
 
-const authenticate = function (device_id) {
-    $.get('/api/security/otp/otp_devices/' + device_id + '/challenge/').done(function (challenge) {
-        const credencialsRequest = transformCredentialRequestOptions(challenge);
-        navigator.credentials.get({
-            publicKey: credencialsRequest,
-        }).then(function(assertion) {
-            const transformedAssertionForServer = transformAssertionForServer(assertion);
-            $.ajax('/api/security/otp/otp_devices/' + device_id + '/verify/', {
-                    data: JSON.stringify(transformedAssertionForServer),
-                    contentType: 'application/json',
-                    type: 'POST',
-            })
+const webAuthnAuthenticate = function (device_id) {
+    httpRequest(
+        'get',
+        '/api/security/otp/otp_devices/' + device_id + '/challenge/',
+        null,
+        function (challenge) {
+            const credencialsRequest = transformCredentialRequestOptions(challenge);
+            navigator.credentials.get({
+                publicKey: credencialsRequest,
+            }).then(function(assertion) {
+                const transformedAssertionForServer = transformAssertionForServer(assertion);
+                httpRequest(
+                    'post',
+                    '/api/security/otp/otp_devices/' + device_id + '/verify/',
+                    transformedAssertionForServer,
+                    function () {
+                        alert('Authenticated');
+                    }
+                );
+            });
         });
-    });
 }

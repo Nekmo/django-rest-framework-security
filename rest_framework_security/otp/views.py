@@ -54,7 +54,10 @@ class OTPDeviceViewSet(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, v
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         engine = get_engine(serializer.validated_data['otp_type'])
-        return Response(engine.begin_register(request))
+        data = engine.begin_register(request)
+        if not isinstance(request.accepted_renderer, PngRenderer) and isinstance(data, str):
+            return Response({'uri': data})
+        return Response(data)
 
     @action(detail=True, methods=['GET'])
     def challenge(self, request, *args, **kwargs):

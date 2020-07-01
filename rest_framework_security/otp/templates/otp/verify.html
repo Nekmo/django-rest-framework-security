@@ -3,9 +3,17 @@
     <script src="{% static "rest_framework/js/jquery-3.3.1.min.js" %}"></script>
     <script src="{% static "otp/base64.js" %}"></script>
     <script src="{% static "otp/webauthn.js" %}"></script>
+    <script>
+        const OTP_DEVICES_API_URL = '{% url "otpdevice-list" %}';
+        function authenticate(ev) {
+            ev.preventDefault();
+            webAuthnAuthenticate(document.getElementById('id_otp_device').value);
+        }
+    </script>
+
     <body>
         <h1>Authenticate</h1>
-        <form onsubmit="authenticate(document.getElementById('id_otp_device').value); return false">
+        <form onsubmit="return authenticate(event);">
             {{ form }}
             <input type="submit" value="Authenticate">
         </form>
