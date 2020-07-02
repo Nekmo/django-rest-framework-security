@@ -1,6 +1,7 @@
 import io
 
 import qrcode
+from django.contrib.sessions.backends.base import SessionBase
 from django.http import Http404
 from django.views.generic import TemplateView
 from rest_framework import viewsets, serializers, renderers, status
@@ -66,8 +67,11 @@ class OTPDeviceViewSet(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, v
 
     @action(detail=True, methods=['POST'])
     def verify(self, request, *args, **kwargs):
+        session: SessionBase = request.session
         instance = self.get_object()
-        return Response(instance.get_engine().verify(request, instance, request.data))
+        verified = instance.get_engine().verify(request, instance, request.data)
+        session['otp'] = False
+        return Response(verified)
 
 
 class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, GenericViewSet):

@@ -11,6 +11,6 @@ router.register('otp_statics', OTPStaticViewSet)
 
 urlpatterns = [
     url(r'^', include(router.urls)),
-    path('register/', RegisterView.as_view()),
-    path('verify/', VerifyView.as_view()),
+    path('register/', RegisterView.as_view(), name='otp-register'),
+    path('verify/', VerifyView.as_view(), name='otp-verify'),
 ]

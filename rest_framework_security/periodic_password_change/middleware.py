@@ -1,22 +1,9 @@
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.base import SessionBase
 from django.shortcuts import redirect
-from django.urls import reverse, NoReverseMatch, resolve, ResolverMatch
 
-from rest_framework_security.periodic_password_change import config
+from rest_framework_security.authentication.middleware import get_admin_base_url, is_path_allowed
 from rest_framework_security.periodic_password_change.utils import password_is_expired
-
-
-def get_admin_base_url(name='index'):
-    try:
-        return reverse(f'admin:{name}')
-    except NoReverseMatch:
-        return
-
-
-def is_path_allowed(path):
-    match: ResolverMatch = resolve(path)
-    return match.url_name in config.PERIODIC_PASSWORD_CHANGE_AUTHORIZED_URLS
 
 
 class PeriodicPasswordChangeMiddleware:

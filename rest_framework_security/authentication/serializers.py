@@ -1,7 +1,6 @@
 import datetime
-from typing import Type, Iterator
+from typing import Type
 
-from django.apps import apps
 from django.contrib.auth import get_user_model, authenticate, logout, login
 from django.contrib.sessions.backends.base import SessionBase
 from django.utils import timezone
@@ -11,18 +10,8 @@ from rest_framework.exceptions import ValidationError
 
 from rest_framework_security.authentication import config
 from rest_framework_security.authentication.models import UserSession
+from rest_framework_security.authentication.next_steps import get_next_steps, get_next_required_steps
 from rest_framework_security.utils import get_client_ip
-
-
-NEXT_STEP_APPS = [
-    'rest_framework_security.periodic_password_change',
-]
-
-
-def get_next_steps(user) -> Iterator[str]:
-    next_step_apps = filter(apps.is_installed, NEXT_STEP_APPS)
-    next_steps = map(lambda x: import_string(f'{x}.auth_next_step.next_step_required'), next_step_apps)
-    yield from filter(bool, map(lambda next_step: next_step(user), next_steps))
 
 
 class LoginSerializer(serializers.Serializer):
@@ -93,11 +82,12 @@ class LoginSerializer(serializers.Serializer):
             first_last = user_sessions[config.AUTHENTICATION_MAX_ACTIVE_SESSIONS]
             to_remove = user_sessions.filter(pk__lte=first_last.pk)
             to_remove.delete()
+        next_steps = list(get_next_required_steps(request))
         return {
             'user': validated_data['user'],
             'session_expires': datetime.datetime.now() + datetime.timedelta(seconds=session_age),
             'max_session_renewal': max_session_renewal,
-            'next_steps': get_next_steps(validated_data['user']),
+            'next_steps': next_steps,
         }
 
 
