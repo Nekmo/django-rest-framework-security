@@ -2,6 +2,7 @@ import base64
 import os
 
 import webauthn
+from django.contrib.sites.models import Site
 from rest_framework.exceptions import ValidationError
 from webauthn.webauthn import AuthenticationRejectedException
 
@@ -14,21 +15,30 @@ CHALLENGE_DEFAULT_BYTE_LEN = 32
 
 
 class WebAuthnEngine:
+    def _get_rp_id(self, request):
+        return RP_ID or request.META['HTTP_HOST'].split(':')[0]
+
+    def _get_rp_name(self, request):
+        return RP_NAME or Site.objects.get_current(request).name
+
+    def _get_origin(self, request):
+        return ORIGIN or f'{request.scheme}://{request.get_host()}'
+
     def begin_register(self, request):
         challenge = generate_challenge()
         request.session['challenge'] = challenge
         ukey = base64.urlsafe_b64encode(str(request.user.id).encode('utf-8'))
         make_credential_options = webauthn.WebAuthnMakeCredentialOptions(
-            challenge, RP_NAME, RP_ID, ukey, request.user.username, request.user.username,
-            ORIGIN)
+            challenge, self._get_rp_name(request), self._get_rp_id(request), ukey, request.user.username,
+            request.user.username, self._get_origin(request))
         return make_credential_options.registration_dict
 
     def confirm_register(self, request, validated_data):
         validated_data = dict(validated_data)
         challenge = request.session['challenge'].rstrip('=')
         webauthn_registration_response = webauthn.WebAuthnRegistrationResponse(
-            RP_ID,
-            ORIGIN,
+            self._get_rp_id(request),
+            self._get_origin(request),
             validated_data['data'],
             challenge,
             'trusted_keys',  # directory
@@ -40,8 +50,8 @@ class WebAuthnEngine:
         validated_data['data'] = {
             'pub_key': webauthn_credential.public_key.decode('utf-8'),
             'credential_id': webauthn_credential.credential_id.decode('utf-8'),
-            'rp_id': RP_ID,
-            'icon_url': ORIGIN,
+            'rp_id': self._get_rp_id(request),
+            'icon_url': self._get_origin(request),
         }
         validated_data['counter'] = webauthn_credential.sign_count
         return validated_data
@@ -74,7 +84,7 @@ class WebAuthnEngine:
             webauthn_user,
             data,
             challenge,
-            ORIGIN,
+            self._get_origin(request),
             uv_required=False)  # User Verification
         try:
             sign_count = webauthn_assertion_response.verify()
