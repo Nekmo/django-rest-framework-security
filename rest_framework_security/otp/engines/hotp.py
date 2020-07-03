@@ -14,6 +14,7 @@ class HOTPEngine(OTPEngineBase):
         return validated_data
 
     def verify(self, request, otp_device, data):
+        # TODO: on mobile/email devices limit updated_at to 5 mins
         verified = super(HOTPEngine, self).verify(request, otp_device, data)
         otp_device.counter += 1
         otp_device.save()

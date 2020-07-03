@@ -98,12 +98,14 @@ class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, Gene
 
     @action(detail=False, methods=['POST'])
     def use_token(self, request, *args, **kwargs):
+        session: SessionBase = request.session
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
             self.get_queryset().use_token(request.user, serializer.validated_data['token'])
         except self.get_queryset().model.DoesNotExist:
             raise Http404
+        session['otp'] = False
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
