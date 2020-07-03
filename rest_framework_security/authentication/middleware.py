@@ -14,6 +14,13 @@ from rest_framework_security.authentication.next_steps import get_next_steps
 from rest_framework_security.utils import get_client_ip
 
 
+DEFAULT_ALLOWED_URLS = [
+    'authentication-next_steps',
+    'authentication-login',
+    'authentication-logout',
+]
+
+
 def get_admin_base_url(name='index'):
     try:
         return reverse(f'admin:{name}')
@@ -45,7 +52,7 @@ class AuthenticationMiddleware:
     def next_steps(self, request):
         admin_base_url = get_admin_base_url('index')
         next_step_required = False
-        allowed_urls = []
+        allowed_urls = list(DEFAULT_ALLOWED_URLS)
         admin_redirect = None
         for next_step in get_next_steps():
             is_required = None

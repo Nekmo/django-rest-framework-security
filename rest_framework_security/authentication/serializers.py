@@ -100,6 +100,12 @@ class LogoutSerializer(serializers.Serializer):
         return {}
 
 
+class NextStepSerializer(serializers.Serializer):
+    step_name = serializers.CharField()
+    title = serializers.CharField()
+    description = serializers.CharField()
+
+
 class UserSessionSerializer(serializers.ModelSerializer):
 
     class Meta:

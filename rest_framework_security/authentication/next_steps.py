@@ -37,6 +37,20 @@ class NextStepBase:
     def update_state(self, request):
         self.set_state(request, self.is_required(request))
 
+    @property
+    def title(self):
+        return self.get_title()
+
+    def get_title(self):
+        return ''
+
+    @property
+    def description(self):
+        return self.get_description()
+
+    def get_description(self):
+        return ''
+
 
 def get_next_steps() -> Iterator[NextStepBase]:
     next_step_apps = filter(apps.is_installed, NEXT_STEP_APPS)
