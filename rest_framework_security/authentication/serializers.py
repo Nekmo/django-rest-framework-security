@@ -1,6 +1,7 @@
 import datetime
 from typing import Type
 
+from django.apps import apps
 from django.contrib.auth import get_user_model, authenticate, logout, login
 from django.contrib.sessions.backends.base import SessionBase
 from django.utils import timezone
@@ -39,10 +40,19 @@ class LoginSerializer(serializers.Serializer):
         return get_user_model().USERNAME_FIELD
 
     def validate(self, data):
+        username = data.get(self.username_field)
         credentials = {
-            self.username_field: data.get(self.username_field),
+            self.username_field: username,
             'password': data.get('password')
         }
+        if apps.is_installed('rest_framework_security.allowed_ips') \
+                and get_user_model().objects.filter(username=username).exists():
+            from rest_framework_security.allowed_ips.protection import AllowedIpsProtection
+            protection = AllowedIpsProtection(
+                user=get_user_model().objects.filter(username=username).first(),
+                ip=get_client_ip(self.context['request']),
+            )
+            protection.before_auth()
         user = authenticate(**credentials)
         if user is None:
             raise ValidationError('Invalid username or password', 'user_login_failed')
