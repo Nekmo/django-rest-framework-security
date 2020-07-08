@@ -9,6 +9,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from rest_framework_security.authentication import config
+from rest_framework_security.authentication.managers import UserSessionQuerySet
 from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.authentication.next_steps import get_next_steps, get_next_required_steps
 from rest_framework_security.utils import get_client_ip
@@ -65,7 +66,7 @@ class LoginSerializer(serializers.Serializer):
         session['max_session_renewal'] = max_session_renewal.isoformat()
         session['remember_me'] = validated_data['remember_me']
         session['ip_address'] = ip_address
-        user_sessions = UserSession.objects.filter(user=validated_data['user'])
+        user_sessions: UserSessionQuerySet = UserSession.objects.filter(user=validated_data['user'])
         user_sessions.expired().clean_and_delete()
         UserSession.objects.get_or_create(
             session_key=session.session_key, user=validated_data['user'],
@@ -76,12 +77,7 @@ class LoginSerializer(serializers.Serializer):
                 'max_session_renewal': max_session_renewal,
             }
         )
-        if config.AUTHENTICATION_MAX_ACTIVE_SESSIONS \
-                and user_sessions.count() > config.AUTHENTICATION_MAX_ACTIVE_SESSIONS:
-            user_sessions = user_sessions.order_by('-created_at')
-            first_last = user_sessions[config.AUTHENTICATION_MAX_ACTIVE_SESSIONS]
-            to_remove = user_sessions.filter(pk__lte=first_last.pk)
-            to_remove.delete()
+        user_sessions.apply_max_active_sessions(config.AUTHENTICATION_MAX_ACTIVE_SESSIONS)
         next_steps = list(get_next_required_steps(request))
         return {
             'user': validated_data['user'],
