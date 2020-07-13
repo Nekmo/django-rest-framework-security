@@ -94,6 +94,7 @@ class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, Gene
             self.get_queryset().create_tokens(request.user)
         except OTPException as e:
             raise ValidationError(f'{e}')
+        self.action = 'list'
         return self.list(request, *args, **kwargs)
 
     @action(detail=False, methods=['POST'])
