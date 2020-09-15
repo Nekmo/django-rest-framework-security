@@ -5,7 +5,7 @@ from rest_framework_security.emails import EmailBase
 class WarnNewIpEmail(EmailBase):
     subject_template_name = 'allowed_ips/warn_new_ip_subject.txt'
     email_template_name = 'allowed_ips/warn_new_ip_email.txt'
-    html_email_template_name = 'allowed_ips/warn_new_ip_email.txt'
+    html_email_template_name = 'allowed_ips/warn_new_ip_email.html'
 
     def __init__(self, user, ip, connection=None, site_id=1):
         super(WarnNewIpEmail, self).__init__(user, connection, site_id)
@@ -23,10 +23,10 @@ class WarnNewIpEmail(EmailBase):
 class WarnIpEmail(WarnNewIpEmail):
     subject_template_name = 'allowed_ips/warn_ip_subject.txt'
     email_template_name = 'allowed_ips/warn_ip_email.txt'
-    html_email_template_name = 'allowed_ips/warn_ip_email.txt'
+    html_email_template_name = 'allowed_ips/warn_ip_email.html'
 
 
 class DenyNewIpEmail(WarnNewIpEmail):
     subject_template_name = 'allowed_ips/deny_new_ip_subject.txt'
     email_template_name = 'allowed_ips/deny_new_ip_email.txt'
-    html_email_template_name = 'allowed_ips/deny_new_ip_email.txt'
+    html_email_template_name = 'allowed_ips/deny_new_ip_email.html'
