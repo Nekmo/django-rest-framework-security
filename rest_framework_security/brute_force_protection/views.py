@@ -48,4 +48,3 @@ class LoginProtectionViewSet(GetAPIView, generics.GenericAPIView):
     permission_classes = ()
     authentication_classes = ()
     serializer_class = LoginProtectionSerializer
-
