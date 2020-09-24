@@ -1,6 +1,7 @@
 import io
 
 import qrcode
+from django.apps import apps
 from django.contrib.sessions.backends.base import SessionBase
 from django.http import Http404
 from django.views.generic import TemplateView
@@ -17,6 +18,7 @@ from rest_framework_security.otp.forms import SelectOTPDeviceForm
 from rest_framework_security.otp.models import OTPDevice, get_engine, OTPStatic
 from rest_framework_security.otp.serializers import OTPDeviceSerializer, OTPDeviceBeginRegisterSerializer, \
     OTPDeviceCreateSerializer, OTPStaticSerializer, OTPStaticObfuscatedSerializer
+from rest_framework_security.sudo.expiration import validate_sudo
 from rest_framework_security.views import IsOwnerViewSetMixin
 
 
@@ -39,6 +41,12 @@ class OTPDeviceViewSet(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, v
     permission_classes = (IsAuthenticated,)
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES + [PngRenderer]
     queryset = OTPDevice.objects.all()
+
+    def check_permissions(self, request):
+        super(OTPDeviceViewSet, self).check_permissions(request)
+        if self.action in ['begin_register', 'create', 'verify'] \
+                and apps.is_installed('rest_framework_security.sudo'):
+            validate_sudo(request)
 
     def get_serializer_class(self):
         if self.action == 'begin_register':
@@ -86,6 +94,11 @@ class OTPStaticViewSet(IsOwnerViewSetMixin, viewsets.mixins.ListModelMixin, Gene
             return serializers.Serializer
         else:
             return super(OTPStaticViewSet, self).get_serializer_class()
+
+    def check_permissions(self, request):
+        super(OTPStaticViewSet, self).check_permissions(request)
+        if self.action == 'create_tokens' and apps.is_installed('rest_framework_security.sudo'):
+            validate_sudo(request)
 
     @action(detail=False, methods=['POST'])
     def create_tokens(self, request, *args, **kwargs):
