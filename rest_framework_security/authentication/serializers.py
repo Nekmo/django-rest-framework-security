@@ -77,6 +77,8 @@ class LoginSerializer(serializers.Serializer):
         session['remember_me'] = validated_data['remember_me']
         session['ip_address'] = ip_address
         user_sessions: UserSessionQuerySet = UserSession.objects.filter(user=validated_data['user'])
+        if not session.session_key:
+            session.save()
         user_sessions.expired().clean_and_delete()
         UserSession.objects.get_or_create(
             session_key=session.session_key, user=validated_data['user'],
