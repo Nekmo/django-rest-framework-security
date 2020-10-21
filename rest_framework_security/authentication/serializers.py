@@ -1,4 +1,5 @@
 import datetime
+from logging import getLogger
 from typing import Type
 
 from django.apps import apps
@@ -14,6 +15,9 @@ from rest_framework_security.authentication.managers import UserSessionQuerySet
 from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.authentication.next_steps import get_next_steps, get_next_required_steps
 from rest_framework_security.utils import get_client_ip
+
+
+logger = getLogger('rest_framework_security.authentication')
 
 
 class LoginSerializer(serializers.Serializer):
@@ -40,6 +44,7 @@ class LoginSerializer(serializers.Serializer):
         return get_user_model().USERNAME_FIELD
 
     def validate(self, data):
+        request = self.context['request']
         username = data.get(self.username_field)
         credentials = {
             self.username_field: username,
@@ -54,6 +59,10 @@ class LoginSerializer(serializers.Serializer):
             )
             protection.before_auth()
         user = authenticate(**credentials)
+        if user is None and get_user_model().objects.filter(username=username).exists():
+            logger.info(f'Authentication error for user {username} from ip {get_client_ip(request)}')
+        elif user is None:
+            logger.info(f'Attempt to authenticate to non-existent user {username} from ip {get_client_ip(request)}')
         if user is None:
             raise ValidationError('Invalid username or password', 'user_login_failed')
         return {
@@ -91,6 +100,8 @@ class LoginSerializer(serializers.Serializer):
         )
         user_sessions.apply_max_active_sessions(config.AUTHENTICATION_MAX_ACTIVE_SESSIONS)
         next_steps = list(get_next_required_steps(request))
+        logger.info(f'User {validated_data["user"]} authenticated from ip {ip_address}. '
+                    f'Next steps: {",".join(next_steps) or "nothing"}')
         return {
             'user': validated_data['user'],
             'session_expires': datetime.datetime.now() + datetime.timedelta(seconds=session_age),
