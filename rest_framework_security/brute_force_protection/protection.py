@@ -1,8 +1,11 @@
-from django.core.cache import cache
+from django.core.cache import caches, DEFAULT_CACHE_ALIAS
 from rest_framework_security.brute_force_protection import config
 from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionException, \
     BruteForceProtectionBanException, BruteForceProtectionCaptchaException
 from redis_cache import RedisCache
+
+
+cache = caches[DEFAULT_CACHE_ALIAS]
 
 
 class BruteForceProtection:
@@ -37,7 +40,7 @@ class BruteForceProtection:
 
     def list_keys(self, pattern):
         if isinstance(cache, RedisCache):
-            return [x.decode('utf-8') for x in cache.get_master_client().scan(f':1:{pattern}')]
+            return [x.decode('utf-8').split(':')[-1] for x in cache.get_master_client().keys(f':1:{pattern}')]
         else:
             return []
 
