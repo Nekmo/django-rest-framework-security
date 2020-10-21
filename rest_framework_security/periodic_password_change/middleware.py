@@ -25,7 +25,7 @@ class PeriodicPasswordChangeMiddleware:
         if require_change and not password_is_expired(request.user):
             session['periodic_password_change'] = False
             require_change = False
-        if request.path in self.default_allowed_urls or (require_change and is_path_allowed(request.path)):
+        if request.path in self.default_allowed_urls:
             pass
         elif require_change and admin_base_url and request.path.startswith(admin_base_url):
             return redirect('admin:password_change')
