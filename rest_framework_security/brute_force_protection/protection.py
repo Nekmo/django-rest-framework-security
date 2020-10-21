@@ -34,6 +34,12 @@ class BruteForceProtection:
         cache.delete(self.get_cache_attemps_key())
         cache.delete(self.get_cache_soft_key())
 
+    def list_failed_ips(self):
+        return cache.keys(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:*')
+
+    def list_soft_ips(self):
+        return cache.keys(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:*')
+
     def validate(self):
         attemps = self.get_attempts()
         if attemps >= config.BRUTE_FORCE_PROTECTION_BAN_LIMIT:
