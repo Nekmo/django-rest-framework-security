@@ -2,6 +2,7 @@ from django.core.cache import cache
 from rest_framework_security.brute_force_protection import config
 from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionException, \
     BruteForceProtectionBanException, BruteForceProtectionCaptchaException
+from redis_cache import RedisCache
 
 
 class BruteForceProtection:
@@ -34,11 +35,17 @@ class BruteForceProtection:
         cache.delete(self.get_cache_attemps_key())
         cache.delete(self.get_cache_soft_key())
 
+    def list_keys(self, pattern):
+        if isinstance(cache, RedisCache):
+            return [x.decode('utf-8') for x in cache.get_master_client().scan(f':1:{pattern}')]
+        else:
+            return []
+
     def list_failed_ips(self):
-        return cache.get(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:*')
+        return self.list_keys(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:*')
 
     def list_soft_ips(self):
-        return cache.get(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:*')
+        return self.list_keys(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:*')
 
     def validate(self):
         attemps = self.get_attempts()
