@@ -1,10 +1,11 @@
 import datetime
 from typing import Union
 
+from django.conf import settings
 from django.contrib.auth import logout
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.base import SessionBase
-from django.urls import reverse, NoReverseMatch, ResolverMatch, resolve
+from django.urls import reverse, NoReverseMatch, ResolverMatch, resolve, Resolver404
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
@@ -31,7 +32,10 @@ def get_admin_base_url(name='index'):
 def is_path_allowed(path, allowed_urls):
     allowed_urls = list(allowed_urls or [])
     allowed_urls.extend(config.AUTHENTICATION_NEXT_STEPS_AUTHORIZED_URLS)
-    match: ResolverMatch = resolve(path)
+    try:
+        match: ResolverMatch = resolve(path)
+    except Resolver404:
+        return False
     return path in allowed_urls or match.url_name in allowed_urls
 
 
@@ -65,7 +69,8 @@ class AuthenticationMiddleware:
                 admin_redirect = admin_redirect or next_step.get_admin_redirect()
         if next_step_required and is_path_allowed(request.path, allowed_urls):
             pass
-        elif next_step_required and admin_redirect and admin_base_url and request.path.startswith(admin_base_url):
+        elif next_step_required and admin_redirect and \
+                request.path == getattr(settings, 'LOGIN_REDIRECT_URL', '/accounts/profile/'):
             return admin_redirect
         elif next_step_required:
             request.user = AnonymousUser()
