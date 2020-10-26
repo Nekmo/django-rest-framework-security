@@ -83,6 +83,8 @@ class AuthenticationMiddleware:
         now = timezone.now()
         if ip_address and ip_address != get_client_ip(request):
             logout(request)
+        elif not request.user.is_authenticated:
+            return 
         elif session_updated_at and max_session_renewal and \
                 session_updated_at + renew_time < now <= max_session_renewal:
             remember_me = session.get('remember_me')
