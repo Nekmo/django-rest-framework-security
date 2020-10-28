@@ -35,7 +35,7 @@ class GeoIPSerializerMixin(serializers.Serializer):
     def get_postal(self, obj):
         if obj.geoip2_city_record is None:
             return None
-        return obj.geoip2_city_record.postal
+        return obj.geoip2_city_record.postal.code
 
     def get_subdivisions(self, obj):
         if obj.geoip2_city_record is None:
