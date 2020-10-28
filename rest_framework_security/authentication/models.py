@@ -3,9 +3,11 @@ from django.contrib.sessions.backends.base import SessionBase
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from geoip2.errors import AddressNotFoundError
 
 from rest_framework_security.authentication.managers import UserSessionManager
 from rest_framework_security.authentication.utils import get_session_store_class
+from rest_framework_security.utils.geoip import geoip2_manager
 
 
 class UserSession(models.Model):
@@ -50,6 +52,15 @@ class UserSession(models.Model):
     @property
     def session_store(self) -> SessionBase:
         return get_session_store_class()(self.session_key)
+
+    @cached_property
+    def geoip2_city_record(self):
+        if not geoip2_manager.is_license_key_available():
+            return
+        try:
+            return geoip2_manager['city'].reader.city(self.ip_address)
+        except AddressNotFoundError:
+            return
 
     def delete(self, **kwargs):
         self.session_store.delete()

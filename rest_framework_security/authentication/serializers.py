@@ -14,7 +14,8 @@ from rest_framework_security.authentication import config
 from rest_framework_security.authentication.managers import UserSessionQuerySet
 from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.authentication.next_steps import get_next_steps, get_next_required_steps
-from rest_framework_security.utils import get_client_ip
+from rest_framework_security.serializers import GeoIPSerializerMixin
+from rest_framework_security.utils.ip import get_client_ip
 
 
 logger = getLogger('rest_framework_security.authentication')
@@ -125,7 +126,7 @@ class NextStepSerializer(serializers.Serializer):
     description = serializers.CharField()
 
 
-class UserSessionSerializer(serializers.ModelSerializer):
+class UserSessionSerializer(GeoIPSerializerMixin, serializers.ModelSerializer):
 
     class Meta:
         model = UserSession

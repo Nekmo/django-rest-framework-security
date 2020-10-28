@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionException
 from rest_framework_security.brute_force_protection.protection import BruteForceProtection
 from rest_framework_security.brute_force_protection.serializers import CaptchaSerializer, LoginProtectionSerializer
-from rest_framework_security.utils import get_client_ip
+from rest_framework_security.utils.ip import get_client_ip
 
 
 def protect_api_request(only_on_error=False):

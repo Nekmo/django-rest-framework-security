@@ -12,7 +12,7 @@ from django.utils.dateparse import parse_datetime
 from rest_framework_security.authentication import config
 from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.authentication.next_steps import get_next_steps
-from rest_framework_security.utils import get_client_ip
+from rest_framework_security.utils.ip import get_client_ip
 
 
 DEFAULT_ALLOWED_URLS = [
