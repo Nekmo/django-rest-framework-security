@@ -70,7 +70,8 @@ class AuthenticationMiddleware:
         if next_step_required and is_path_allowed(request.path, allowed_urls):
             pass
         elif next_step_required and admin_redirect and \
-                request.path == getattr(settings, 'LOGIN_REDIRECT_URL', '/accounts/profile/'):
+                ((admin_base_url and request.path.startswith(admin_base_url)) or
+                 (request.path == getattr(settings, 'LOGIN_REDIRECT_URL', '/accounts/profile/'))):
             return admin_redirect
         elif next_step_required:
             request.user = AnonymousUser()
