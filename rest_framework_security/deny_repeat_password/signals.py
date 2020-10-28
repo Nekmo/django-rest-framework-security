@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver, Signal
 from rest_framework_security.deny_repeat_password import config
+from rest_framework_security.deny_repeat_password.emails import ChangedPasswordEmail
 
 from rest_framework_security.deny_repeat_password.models import UserPassword
 
@@ -20,3 +21,8 @@ def set_user_password_receiver(sender, instance, **kwargs):
         UserSession.objects.filter(user=instance).clean_and_delete()
     if created:
         password_changed.send(None, user=instance)
+
+
+@receiver(password_changed)
+def send_password_changed_email(sender, user, **kwargs):
+    ChangedPasswordEmail(user).send()
