@@ -1,0 +1,22 @@
+{% load i18n %}{% autoescape off %}
+
+{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username profile_url=config.ALLOWED_IPS_PROFILE_URL otp_type=device.get_otp_type_display %}
+Hello {{ first_name }} {{ last_name }},
+
+A new two-factor device has been added to your {{ username }} account in {{ site_name }}. The device has been added by
+your user to protect access to your account using this new device.
+
+Device type: {{ otp_type }}
+
+If you have not added this device you should check the access to your account. You can check all authorized devices in
+your profile:
+
+{{ profile_url }}
+{% endblocktrans %}
+
+{% blocktrans %}For security reasons, we recommend that you copy the email link
+and carefully check the url.{% endblocktrans %}
+
+{% blocktrans %}The {{ site_name }} team{% endblocktrans %}
+
+{% endautoescape %}

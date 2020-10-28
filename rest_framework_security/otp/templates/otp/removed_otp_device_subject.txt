@@ -1,0 +1,3 @@
+{% load i18n %}{% autoescape off %}
+{% blocktrans with username=user.get_username %}Removed two-factor authentication device on your {{ username }} account in {{ site_name }}{% endblocktrans %}
+{% endautoescape %}
