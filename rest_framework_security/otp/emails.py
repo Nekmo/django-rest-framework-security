@@ -1,4 +1,4 @@
-from rest_framework_security.allowed_ips import config
+from rest_framework_security.otp import config
 from rest_framework_security.emails import EmailBase
 
 
@@ -13,7 +13,7 @@ class OTPDeviceEmail(EmailBase):
 
     @property
     def from_email(self):
-        return config.ALLOWED_IPS_FROM_EMAIL or super(OTPDeviceEmail, self).from_email
+        return config.OTP_FROM_EMAIL or super(OTPDeviceEmail, self).from_email
 
 
 class CreatedOTPDeviceEmail(OTPDeviceEmail):
