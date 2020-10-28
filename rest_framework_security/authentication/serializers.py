@@ -132,5 +132,6 @@ class UserSessionSerializer(GeoIPSerializerMixin, serializers.ModelSerializer):
         model = UserSession
         fields = (
             'url', 'id', 'ip_address', 'user_agent', 'browser', 'os', 'device', 'session_expires',
-            'max_session_renewal', 'created_at', 'updated_at'
+            'city', 'country', 'continent', 'postal', 'subdivisions', 'max_session_renewal',
+            'created_at', 'updated_at'
         )
