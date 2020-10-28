@@ -1,4 +1,5 @@
 from rest_framework_security.deny_repeat_password import config
+from rest_framework_security import config as global_config
 from rest_framework_security.emails import EmailBase
 
 
@@ -10,7 +11,7 @@ class ChangedPasswordEmail(EmailBase):
     def get_context(self):
         return dict(
             super(ChangedPasswordEmail, self).get_context(),
-            profile_url=config.DENY_REPEAT_PASSWORD_PROFILE_URL,
+            profile_url=config.DENY_REPEAT_PASSWORD_PROFILE_URL or global_config.REST_FRAMEWORK_SECURITY_PROFILE_URL,
         )
 
     @property

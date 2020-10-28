@@ -1,6 +1,6 @@
 {% load i18n %}{% autoescape off %}
 
-{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username profile_url=config.ALLOWED_IPS_PROFILE_URL otp_type=device.get_otp_type_display %}
+{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username %}
 Hello {{ first_name }} {{ last_name }},
 
 A new two-factor device has been added to your {{ username }} account in {{ site_name }}. The device has been added by

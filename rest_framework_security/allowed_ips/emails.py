@@ -1,4 +1,5 @@
 from rest_framework_security.allowed_ips import config
+from rest_framework_security import config as global_config
 from rest_framework_security.emails import EmailBase
 
 
@@ -13,6 +14,7 @@ class WarnNewIpEmail(EmailBase):
 
     def get_context(self):
         return dict(super(WarnNewIpEmail, self).get_context(),
+                    profile_url=config.ALLOWED_IPS_PROFILE_URL or global_config.REST_FRAMEWORK_SECURITY_PROFILE_URL,
                     ip=self.ip)
 
     @property

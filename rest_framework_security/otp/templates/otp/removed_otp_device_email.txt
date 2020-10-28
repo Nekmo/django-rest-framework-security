@@ -1,6 +1,6 @@
 {% load i18n %}{% autoescape off %}
 
-{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username profile_url=config.ALLOWED_IPS_PROFILE_URL otp_type=device.get_otp_type_display %}
+{% blocktrans with first_name=user.first_name last_name=user.last_name username=user.get_username otp_type=device.get_otp_type_display %}
 Hello {{ first_name }} {{ last_name }},
 
 A two-factor device has been removed from your {{ username }} account in {{ site_name }}.
