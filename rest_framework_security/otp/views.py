@@ -44,7 +44,7 @@ class OTPDeviceViewSet(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, v
 
     def check_permissions(self, request):
         super(OTPDeviceViewSet, self).check_permissions(request)
-        if self.action in ['begin_register', 'create', 'verify'] \
+        if self.action in ['begin_register', 'create'] \
                 and apps.is_installed('rest_framework_security.sudo'):
             validate_sudo(request)
 
