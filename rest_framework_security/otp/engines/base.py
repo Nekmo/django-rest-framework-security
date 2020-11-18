@@ -33,6 +33,8 @@ class OTPEngineBase(EngineBase):
     def confirm_register(self, request, validated_data):
         validated_data = dict(validated_data)
         secret = request.session.pop(self.keyname, None)
+        if secret is None:
+            raise ValidationError('Use begin_register before using this method.')
         if not self.verify_otp(secret, validated_data['data']['code'], 1):
             raise ValidationError('Invalid code')
         validated_data['data'] = {self.keyname: secret}
