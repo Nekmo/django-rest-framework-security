@@ -47,7 +47,10 @@ class AuthenticationMiddleware:
     def __call__(self, request):
         session: SessionBase = request.session
         self.validate_and_renew_session(request, session)
-        redirect = self.next_steps(request)
+        redirect = None
+        if not request.session.get('is_hijacked_user', False):
+            # User is hijacked using django-hijack, skip next steps
+            redirect = self.next_steps(request)
         if redirect:
             return redirect
         response = self.get_response(request)
