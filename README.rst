@@ -3,9 +3,10 @@ django-rest-framework-security
 ##############################
 
 
-.. image:: https://img.shields.io/travis/Nekmo/django-rest-framework-security.svg?style=flat-square&maxAge=2592000
-  :target: https://travis-ci.org/Nekmo/django-rest-framework-security
-  :alt: Latest Travis CI build status
+.. image:: https://img.shields.io/github/workflow/status/Nekmo/django-rest-framework-security/Tests
+.svg?style=flat-square&maxAge=2592000
+  :target: https://github.com/Nekmo/django-rest-framework-security/actions?query=workflow%3ATests
+  :alt: Latest Tests CI build status
 
 .. image:: https://img.shields.io/pypi/v/django-rest-framework-security.svg?style=flat-square
   :target: https://pypi.org/project/django-rest-framework-security/
@@ -15,7 +16,7 @@ django-rest-framework-security
   :target: https://pypi.org/project/django-rest-framework-security/
   :alt: Python versions
 
-.. image:: https://img.shields.io/codeclimate/github/Nekmo/django-rest-framework-security.svg?style=flat-square
+.. image:: https://img.shields.io/codeclimate/maintainability/Nekmo/django-rest-framework-security.svg?style=flat-square
   :target: https://codeclimate.com/github/Nekmo/django-rest-framework-security
   :alt: Code Climate
 
@@ -23,8 +24,8 @@ django-rest-framework-security
   :target: https://codecov.io/github/Nekmo/django-rest-framework-security
   :alt: Test coverage
 
-.. image:: https://img.shields.io/requires/github/Nekmo/django-rest-framework-security.svg?style=flat-square
-     :target: https://requires.io/github/Nekmo/django-rest-framework-security/requirements/?branch=master
+.. image:: https://img.shields.io/requires/github/Nekmo/django-rest-framework-security/develop.svg?style=flat-square
+     :target: https://requires.io/github/Nekmo/django-rest-framework-security/requirements/?branch=develop
      :alt: Requirements Status
 
 
