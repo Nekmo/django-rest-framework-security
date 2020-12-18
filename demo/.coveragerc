@@ -1,0 +1,3 @@
+[run]
+source =
+    rest_framework_security
