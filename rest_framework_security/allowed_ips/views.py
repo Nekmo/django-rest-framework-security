@@ -2,7 +2,7 @@ from django.utils.module_loading import import_string
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 
-from customers.permissions import IsOwner
+from rest_framework_security.permissions import IsOwner
 from rest_framework_security.allowed_ips import config
 from rest_framework_security.allowed_ips.models import UserIp
 from rest_framework_security.allowed_ips.serializers import UserIpSerializer, CreateUserIpSerializer, \

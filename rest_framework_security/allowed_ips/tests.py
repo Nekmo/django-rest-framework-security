@@ -1,8 +1,11 @@
 from unittest.mock import patch
 
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.exceptions import PermissionDenied
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from rest_framework_security.allowed_ips.emails import DenyNewIpEmail, WarnNewIpEmail, WarnIpEmail
 from rest_framework_security.allowed_ips.models import UserIp
@@ -70,3 +73,32 @@ class AllowedIpsProtectionTestCase(TestCase):
         self.user_ip.save()
         AllowedIpsProtection(self.user, self.ip).successful_auth()
         m.assert_called_once()
+
+
+class UserIpTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.url = reverse('userip-list')
+        self.user = get_user_model().objects.create(
+            username='demo',
+        )
+        self.other_user = get_user_model().objects.create(
+            username='other',
+        )
+
+    def test_create(self):
+        self.client.force_authenticate(user=self.user)
+        data = {'ip_address': '1.1.1.1', 'action': 'deny'}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(UserIp.objects.count(), 1)
+        self.assertEqual(UserIp.objects.get().user, self.user)
+        self.assertEqual(UserIp.objects.get().ip_address, data['ip_address'])
+        self.assertEqual(UserIp.objects.get().action, data['action'])
+
+    def test_list(self):
+        self.client.force_authenticate(user=self.user)
+        UserIp.objects.create(ip_address='1.1.1.1', user=self.user)
+        UserIp.objects.create(ip_address='1.1.1.1', user=self.other_user)
+        response = self.client.get(self.url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)
