@@ -29,6 +29,5 @@ jobs:
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with coverage
       run: |
-          coverage run manage.py test rest_framework_security
+          coverage run demo/manage.py test rest_framework_security
           codecov
-      working-directory: ./demo
