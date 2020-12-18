@@ -1,0 +1,5 @@
+-r ../requirements.in
+Django
+django-rest-framework
+django-filter
+gunicorn

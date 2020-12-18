@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 
@@ -22,6 +21,7 @@ class EmailBase:
 
     @property
     def site_name(self):
+        from django.contrib.sites.models import Site
         return Site.objects.get(pk=self.site_id).name
 
     @property
