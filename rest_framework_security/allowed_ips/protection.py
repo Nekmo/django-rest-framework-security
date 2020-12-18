@@ -45,7 +45,8 @@ class AllowedIpsProtection:
     def successful_auth(self):
         """The credentials entered are correct, but access can still be denied"""
         action, user_ip = self.get_action()
-        if user_ip:
+        user_ip_is_new = user_ip is None
+        if not user_ip:
             # It's the first time using this ip address
             user_ip = UserIp.objects.create(
                 action='',
@@ -54,18 +55,14 @@ class AllowedIpsProtection:
                 user=self.user
             )
         else:
-            user_ip = UserIp.objects.get(
-                ip_address=self.ip,
-                user=self.user
-            )
             user_ip.last_used_at = timezone.now()
             user_ip.save()
-        if action == 'deny' and user_ip:
+        if action == 'deny' and user_ip_is_new:
             # Only send email and save ip if credenciales are valid
             DenyNewIpEmail(self.user, self.ip).send()
         if action == 'deny':
             raise PermissionDenied(detail=f'Your ip {self.ip} is not authorized')
-        if action == 'warn' and user_ip:
+        if action == 'warn' and user_ip_is_new:
             # Only send email and save ip if credenciales are valid
             WarnNewIpEmail(self.user, self.ip).send()
         elif user_ip.action == 'warn':
