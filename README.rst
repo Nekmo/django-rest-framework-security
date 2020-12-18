@@ -3,8 +3,7 @@ django-rest-framework-security
 ##############################
 
 
-.. image:: https://img.shields.io/github/workflow/status/Nekmo/django-rest-framework-security/Tests
-.svg?style=flat-square&maxAge=2592000
+.. image:: https://img.shields.io/github/workflow/status/Nekmo/django-rest-framework-security/Tests.svg?style=flat-square&maxAge=2592000
   :target: https://github.com/Nekmo/django-rest-framework-security/actions?query=workflow%3ATests
   :alt: Latest Tests CI build status
 
