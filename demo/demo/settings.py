@@ -134,4 +134,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = '/static/'
 
 if DEBUG:
-    sys.path.append(BASE_DIR.parent.parent.joinpath('src/django'))
+    sys.path.append(str(BASE_DIR.parent))
