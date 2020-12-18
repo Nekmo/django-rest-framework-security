@@ -51,6 +51,7 @@ class LoginSerializer(serializers.Serializer):
             self.username_field: username,
             'password': data.get('password')
         }
+        protection = None
         if apps.is_installed('rest_framework_security.allowed_ips') \
                 and get_user_model().objects.filter(username=username).exists():
             from rest_framework_security.allowed_ips.protection import AllowedIpsProtection
@@ -65,7 +66,10 @@ class LoginSerializer(serializers.Serializer):
         elif user is None:
             logger.info(f'Attempt to authenticate to non-existent user {username} from ip {get_client_ip(request)}')
         if user is None:
+            protection.auth_failed()
             raise ValidationError('Invalid username or password', 'user_login_failed')
+        if protection is not None:
+            protection.successful_auth()
         return {
             'user': user,
             'remember_me': data.get('remember_me'),
