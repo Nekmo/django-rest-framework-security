@@ -4,11 +4,14 @@ include HISTORY.rst
 include LICENSE
 include README.rst
 include requirements.txt
+include requirements.in
 include common-requirements.txt
 include py2-requirements.txt
 include py3-requirements.txt
 
 recursive-include tests *
+recursive-include rest_framework_security *.txt
+recursive-include rest_framework_security *.html
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
