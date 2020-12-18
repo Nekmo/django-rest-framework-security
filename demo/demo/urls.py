@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/security/allowed_ips/', include('rest_framework_security.allowed_ips.urls')),
+    path('api/security/authentication/', include('rest_framework_security.authentication.urls')),
 ]

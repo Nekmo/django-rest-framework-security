@@ -83,7 +83,7 @@ class LoginSerializer(serializers.Serializer):
         max_age = config.get_max_age(validated_data.get('remember_me'))
         max_session_renewal = now + datetime.timedelta(seconds=max_age)
         ip_address = get_client_ip(request)
-        user_agent = request.META['HTTP_USER_AGENT']
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
         login(request, validated_data['user'])
         session.set_expiry(session_age)
         session['session_updated_at'] = now.isoformat()

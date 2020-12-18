@@ -2,7 +2,11 @@ from django.core.cache import caches, DEFAULT_CACHE_ALIAS
 from rest_framework_security.brute_force_protection import config
 from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionException, \
     BruteForceProtectionBanException, BruteForceProtectionCaptchaException
-from redis_cache import RedisCache
+
+try:
+    from redis_cache import RedisCache
+except ImportError:
+    RedisCache = None
 
 
 cache = caches[DEFAULT_CACHE_ALIAS]
@@ -39,7 +43,7 @@ class BruteForceProtection:
         cache.delete(self.get_cache_soft_key())
 
     def list_keys(self, pattern):
-        if isinstance(cache, RedisCache):
+        if RedisCache is not None and isinstance(cache, RedisCache):
             return [x.decode('utf-8').split(':')[-1] for x in cache.get_master_client().keys(f':1:{pattern}')]
         else:
             return []
