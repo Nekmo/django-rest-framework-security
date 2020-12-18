@@ -18,7 +18,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip codecov tox
+        python -m pip install --upgrade pip codecov
         pip install tox-gh-actions
         pip install -r demo/requirements.txt
 #    - name: Lint with flake8
@@ -29,5 +29,6 @@ jobs:
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with coverage
       run: |
-          coverage run -m unittest discover
+          coverage run manage.py test rest_framework_security
           codecov
+      working-directory: ./demo
