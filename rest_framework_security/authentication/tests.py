@@ -37,6 +37,21 @@ class LoginAPIViewTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class LogoutAPIViewTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.url = reverse('authentication-logout')
+        self.user: AbstractUser = get_user_model().objects.create(
+            username='demo',
+        )
+
+    @patch('rest_framework_security.authentication.serializers.logout')
+    def test_logout(self, m):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        m.assert_called_once()
+
+
 class NextStepAPIViewTestCase(APITestCase):
     def setUp(self) -> None:
         self.url = reverse('authentication-next_steps')
