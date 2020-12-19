@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch, Mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
@@ -34,6 +35,24 @@ class LoginAPIViewTestCase(APITestCase):
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class NextStepAPIViewTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.url = reverse('authentication-next_steps')
+        self.user: AbstractUser = get_user_model().objects.create(
+            username='demo',
+        )
+
+    @patch('rest_framework_security.authentication.views.get_next_steps')
+    def test_next_steps(self, m):
+        next_step = Mock()
+        next_step.is_required.return_value = True
+        m.return_value = [next_step]
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(UserSession.objects.filter(user=self.user).count(), 0)
 
 
 class UserSessionAPIViewTestCase(APITestCase):
