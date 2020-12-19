@@ -1,8 +1,13 @@
+from datetime import timedelta
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+
+from rest_framework_security.authentication.models import UserSession
 
 
 class LoginAPIViewTestCase(APITestCase):
@@ -29,3 +34,41 @@ class LoginAPIViewTestCase(APITestCase):
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class UserSessionAPIViewTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.url = reverse('usersession-list')
+        self.user: AbstractUser = get_user_model().objects.create(
+            username='demo',
+        )
+        self.other: AbstractUser = get_user_model().objects.create(
+            username='other',
+        )
+        dt = timezone.now() + timedelta(days=1)
+        UserSession.objects.create(
+            user=self.user, session_key='a' * 40, ip_address='1.1.1.1',
+            session_expires=dt, max_session_renewal=dt,
+        )
+        UserSession.objects.create(
+            user=self.other, session_key='b' * 40, ip_address='1.1.1.2',
+            session_expires=dt, max_session_renewal=dt,
+        )
+
+    def test_list(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(self.url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 1)
+
+    def test_read_only(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(self.url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_purge(self):
+        url = reverse('usersession-purge')
+        self.client.force_authenticate(self.user)
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(UserSession.objects.filter(user=self.user).count(), 0)
