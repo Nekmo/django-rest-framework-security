@@ -3,11 +3,13 @@ from unittest.mock import patch, Mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
+from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
+from rest_framework_security.authentication.middleware import AuthenticationMiddleware
 from rest_framework_security.authentication.models import UserSession
 
 
@@ -106,3 +108,23 @@ class UserSessionAPIViewTestCase(APITestCase):
         response = self.client.post(url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(UserSession.objects.filter(user=self.user).count(), 0)
+
+
+class AuthenticationMiddlewareTestCase(TestCase):
+    def test_is_hijacked(self):
+        get_response = Mock()
+        request = Mock(**{'session.get.return_value': True})
+        authentication_middleware = AuthenticationMiddleware(get_response)
+        authentication_middleware.validate_and_renew_session = Mock()
+        authentication_middleware.next_steps = Mock()
+        authentication_middleware(request)
+        authentication_middleware.next_steps.assert_not_called()
+
+    def test_redirect(self):
+        get_response = Mock()
+        request = Mock(**{'session.get.return_value': False})
+        authentication_middleware = AuthenticationMiddleware(get_response)
+        authentication_middleware.validate_and_renew_session = Mock()
+        authentication_middleware.next_steps = Mock(return_value=True)
+        self.assertTrue(authentication_middleware(request))
+        authentication_middleware.next_steps.assert_called_once()
