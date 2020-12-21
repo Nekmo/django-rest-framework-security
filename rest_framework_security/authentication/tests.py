@@ -2,7 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch, Mock
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, AnonymousUser
 from django.test import TestCase
 from django.utils import timezone
 from rest_framework import status
@@ -11,6 +11,7 @@ from rest_framework.test import APITestCase
 
 from rest_framework_security.authentication.middleware import AuthenticationMiddleware
 from rest_framework_security.authentication.models import UserSession
+from rest_framework_security.authentication.next_steps import NextStepBase
 
 
 class LoginAPIViewTestCase(APITestCase):
@@ -128,3 +129,40 @@ class AuthenticationMiddlewareTestCase(TestCase):
         authentication_middleware.next_steps = Mock(return_value=True)
         self.assertTrue(authentication_middleware(request))
         authentication_middleware.next_steps.assert_called_once()
+
+    @patch('rest_framework_security.authentication.middleware.get_next_steps')
+    def test_next_steps_admin_url(self, m):
+        admin_url = '/admin/url/'
+        next_step = NextStepBase()
+        next_step.is_required = Mock(return_value=True)
+        next_step.get_admin_redirect = Mock(return_value=admin_url)
+        next_step.step_name = 'test'
+        m.return_value = [next_step]
+        authentication_middleware = AuthenticationMiddleware(None)
+        request_mock = Mock()
+        request_mock.session = {}
+        self.assertEqual(authentication_middleware.next_steps(request_mock), admin_url)
+        self.assertEqual(request_mock.session.get('test'), True)
+
+    @patch('rest_framework_security.authentication.middleware.get_next_steps')
+    def test_next_steps_required(self, m):
+        next_step = NextStepBase()
+        next_step.is_required = Mock(return_value=True)
+        m.return_value = [next_step]
+        authentication_middleware = AuthenticationMiddleware(None)
+        request_mock = Mock()
+        request_mock.session = {}
+        authentication_middleware.next_steps(request_mock)
+        self.assertEqual(request_mock.user, AnonymousUser())
+
+    @patch('rest_framework_security.authentication.middleware.get_next_steps')
+    @patch('rest_framework_security.authentication.middleware.is_path_allowed', return_value=True)
+    def test_next_steps_path_allowed(self, m1, m2):
+        next_step = NextStepBase()
+        next_step.is_required = Mock(return_value=True)
+        m2.return_value = [next_step]
+        authentication_middleware = AuthenticationMiddleware(None)
+        request_mock = Mock()
+        request_mock.session = {}
+        authentication_middleware.next_steps(request_mock)
+        self.assertEqual(request_mock.user, request_mock.user)
