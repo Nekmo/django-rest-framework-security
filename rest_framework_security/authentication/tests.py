@@ -1,5 +1,5 @@
 from datetime import timedelta
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, AnonymousUser
@@ -166,3 +166,44 @@ class AuthenticationMiddlewareTestCase(TestCase):
         request_mock.session = {}
         authentication_middleware.next_steps(request_mock)
         self.assertEqual(request_mock.user, request_mock.user)
+
+    @patch('rest_framework_security.authentication.middleware.logout')
+    def test_validate_and_renew_session_logout(self, m):
+        authentication_middleware = AuthenticationMiddleware(None)
+        request_mock = Mock(**{'META.get.return_value': 'new_ip'})
+        authentication_middleware.validate_and_renew_session(request_mock, {'ip_address': 'old_ip'})
+        m.assert_called_once()
+
+    def test_validate_and_renew_session_not_authenticated(self):
+        authentication_middleware = AuthenticationMiddleware(None)
+        request_mock = Mock(**{'user.is_authenticated': False})
+        authentication_middleware.validate_and_renew_session(request_mock, {})
+
+    @patch('rest_framework_security.authentication.middleware.get_client_ip', return_value='1.1.1.1')
+    def test_validate_and_renew_session_expired(self, m):
+        user: AbstractUser = get_user_model().objects.create(
+            username='demo',
+        )
+        ip_address = '1.1.1.1'
+        session_key = 'a' * 40
+        dt = timezone.now() + timedelta(minutes=1)
+        user_session = UserSession.objects.create(
+            user=user, session_key=session_key, ip_address=ip_address,
+            session_expires=dt, max_session_renewal=dt,
+        )
+        authentication_middleware = AuthenticationMiddleware(None)
+        request_mock = Mock()
+        request_mock.user = user
+        session = {
+            'ip_address': ip_address,
+            'session_updated_at': (timezone.now() - timedelta(days=1)).isoformat(),
+            'max_session_renewal': dt.isoformat(),
+        }
+        session_mock = MagicMock()
+        session_mock.get.side_effect = session.get
+        session_mock.session_key = session_key
+        authentication_middleware.validate_and_renew_session(request_mock, session_mock)
+        self.assertGreater(
+            UserSession.objects.get(pk=user_session.pk).session_expires,
+            dt
+        )
