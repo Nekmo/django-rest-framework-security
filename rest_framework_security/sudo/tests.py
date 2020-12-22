@@ -44,3 +44,18 @@ class UpdateStatusTestCase(APITestCase):
         response = self.client.post(self.url, {'password': self.password}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(self.user.last_login)
+
+
+class ExpireNowViewTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.url = reverse('sudo-expire_now')
+        self.dt = timezone.now()
+        self.user = get_user_model().objects.create(
+            username='demo', last_login=self.dt,
+        )
+
+    def test_update(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertLess(get_user_model().objects.get(pk=self.user.pk).last_login, self.dt)
