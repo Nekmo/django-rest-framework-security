@@ -4,12 +4,13 @@ from unittest.mock import patch, Mock, MagicMock
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser, AnonymousUser
 from django.test import TestCase
+from django.urls import NoReverseMatch
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from rest_framework_security.authentication.middleware import AuthenticationMiddleware
+from rest_framework_security.authentication.middleware import AuthenticationMiddleware, get_admin_base_url
 from rest_framework_security.authentication.models import UserSession
 from rest_framework_security.authentication.next_steps import NextStepBase
 
@@ -207,3 +208,21 @@ class AuthenticationMiddlewareTestCase(TestCase):
             UserSession.objects.get(pk=user_session.pk).session_expires,
             dt
         )
+
+
+class NextStepBaseTestCase(TestCase):
+    def test_title(self):
+        self.assertEqual(NextStepBase().title, '')
+
+    def test_description(self):
+        self.assertEqual(NextStepBase().description, '')
+
+
+class GetAdminBaseUrlTestCase(TestCase):
+    @patch('rest_framework_security.authentication.next_steps.reverse', return_value='/admin/')
+    def test_reverse(self, m):
+        self.assertEqual(get_admin_base_url(), '/admin/')
+
+    @patch('rest_framework_security.authentication.next_steps.reverse', side_effect=NoReverseMatch)
+    def test_reverse_none(self, m):
+        self.assertEqual(get_admin_base_url(), None)

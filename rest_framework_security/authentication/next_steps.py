@@ -64,11 +64,6 @@ def get_next_required_steps(request) -> Iterator[str]:
                           get_next_steps()))
 
 
-def next_step_required(user):
-    if password_is_expired(user):
-        return 'change_password'
-
-
 def get_admin_base_url(name='index'):
     try:
         return reverse(f'admin:{name}')

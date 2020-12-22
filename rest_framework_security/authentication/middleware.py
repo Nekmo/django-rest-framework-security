@@ -11,7 +11,7 @@ from django.utils.dateparse import parse_datetime
 
 from rest_framework_security.authentication import config
 from rest_framework_security.authentication.models import UserSession
-from rest_framework_security.authentication.next_steps import get_next_steps
+from rest_framework_security.authentication.next_steps import get_next_steps, get_admin_base_url
 from rest_framework_security.utils.ip import get_client_ip
 
 
@@ -20,13 +20,6 @@ DEFAULT_ALLOWED_URLS = [
     'authentication-login',
     'authentication-logout',
 ]
-
-
-def get_admin_base_url(name='index'):
-    try:
-        return reverse(f'admin:{name}')
-    except NoReverseMatch:
-        return
 
 
 def is_path_allowed(path, allowed_urls):
@@ -88,7 +81,7 @@ class AuthenticationMiddleware:
         if ip_address and ip_address != get_client_ip(request):
             logout(request)
         elif not request.user.is_authenticated:
-            return 
+            return
         elif session_updated_at and max_session_renewal and \
                 session_updated_at + renew_time < now <= max_session_renewal:
             remember_me = session.get('remember_me')
