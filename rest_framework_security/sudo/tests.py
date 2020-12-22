@@ -1,8 +1,15 @@
+from datetime import timedelta
+from unittest.mock import Mock
+
 from django.contrib.auth import get_user_model
+from django.test import TestCase, RequestFactory
 from django.utils import timezone
 from rest_framework import status
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
+
+from rest_framework_security.sudo.expiration import sudo_required
 
 
 class StatusViewTestCase(APITestCase):
@@ -59,3 +66,25 @@ class ExpireNowViewTestCase(APITestCase):
         response = self.client.post(self.url, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertLess(get_user_model().objects.get(pk=self.user.pk).last_login, self.dt)
+
+
+class SudoRequiredTestCase(TestCase):
+    def setUp(self) -> None:
+        self.factory = RequestFactory()
+
+    def test_sudo_auth_again(self):
+        user = get_user_model().objects.create(
+                    username='demo',
+        )
+        req = self.factory.get(reverse('sudo-status'))
+        req.user = user
+        with self.assertRaises(PermissionDenied):
+            sudo_required(lambda request: True)(req)
+
+    def test_sudo_validate(self):
+        user = get_user_model().objects.create(
+                    username='demo', last_login=timezone.now()
+        )
+        req = self.factory.get(reverse('sudo-status'))
+        req.user = user
+        self.assertTrue(sudo_required(lambda request: True)(req))
