@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from rest_framework_sudo.expiration import get_user_remaning_time, get_expires_at, expire_now
+from rest_framework_security.sudo.expiration import get_user_remaning_time, expire_now
 
 
 class StatusSerializer(serializers.Serializer):

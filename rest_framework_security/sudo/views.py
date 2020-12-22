@@ -1,8 +1,8 @@
-from rest_framework_sudo.expiration import get_expires_at
+from rest_framework_security.sudo.expiration import get_expires_at
 from rest_framework import permissions, generics
 from rest_framework.response import Response
 
-from rest_framework_sudo.serializers import StatusSerializer, UpdateStatusSerializer, ExpireNowSerializer
+from rest_framework_security.sudo.serializers import StatusSerializer, UpdateStatusSerializer, ExpireNowSerializer
 
 
 class StatusView(generics.GenericAPIView):

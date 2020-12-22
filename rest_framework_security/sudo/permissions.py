@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from rest_framework_sudo.expiration import get_user_remaning_time
+from rest_framework_security.sudo.expiration import get_user_remaning_time
 
 
 class Sudo(BasePermission):

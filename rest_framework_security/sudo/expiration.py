@@ -3,11 +3,11 @@ from functools import wraps
 
 from rest_framework.exceptions import PermissionDenied
 
-from rest_framework_sudo import settings
+from rest_framework_security.sudo import config
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 
-from rest_framework_sudo.utils import get_request_argument
+from rest_framework_security.sudo.utils import get_request_argument
 
 
 def get_user_remaning_time(user: AbstractUser):
@@ -15,7 +15,7 @@ def get_user_remaning_time(user: AbstractUser):
     if not user.last_login:
         return expired_time
     now = timezone.now()
-    expiration_time = user.last_login - now + settings.REST_FRAMEWORK_SUDO_EXPIRATION
+    expiration_time = user.last_login - now + config.REST_FRAMEWORK_SUDO_EXPIRATION
     if expiration_time.total_seconds() < 0:
         return expired_time
     return expiration_time
@@ -24,7 +24,7 @@ def get_user_remaning_time(user: AbstractUser):
 def expire_now(user: AbstractUser) -> None:
     if not get_user_remaning_time(user):
         return
-    user.last_login = timezone.now() - settings.REST_FRAMEWORK_SUDO_EXPIRATION - datetime.timedelta(seconds=1)
+    user.last_login = timezone.now() - config.REST_FRAMEWORK_SUDO_EXPIRATION - datetime.timedelta(seconds=1)
     user.save()
 
 
