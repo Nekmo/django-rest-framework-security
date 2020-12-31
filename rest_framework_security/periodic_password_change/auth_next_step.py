@@ -20,7 +20,11 @@ class NextStep(NextStepBase):
         return redirect('admin:password_change')
 
     def is_required(self, request):
-        return password_is_expired(request.user)
+        if hasattr(request, 'user'):
+            return password_is_expired(request.user)
+        else:
+            # Is a test
+            return None
 
     def get_title(self):
         return _('Periodic Password Change')
