@@ -40,3 +40,19 @@ class NextStepTestCase(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 403)
+
+    def test_next_steps(self):
+        url = reverse('authentication-next_steps')
+        self.client.force_login(self.user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
+
+    def test_password_updated(self):
+        url = reverse('usersession-list')
+        self.client.force_login(self.user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 403)
+        self.user_password.save()  # updated created_at
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 200)
