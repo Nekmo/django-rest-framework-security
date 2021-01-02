@@ -28,7 +28,10 @@ class BruteForceProtection:
     def get_soft_status(self):
         return cache.get(self.get_cache_soft_key(), default=False)
 
-    def set_soft_status(self, value):
+    def set_soft_status(self, value: bool):
+        """
+        :value bool: True if the soft ban challenge has been overcome
+        """
         cache.set(self.get_cache_soft_key(), value,
                   config.BRUTE_FORCE_PROTECTION_SOFT_EXPIRATION)
 

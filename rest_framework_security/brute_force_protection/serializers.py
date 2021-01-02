@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 from rest_framework_security.brute_force_protection import config
 from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionBanException, \
-    BruteForceProtectionException, BruteForceProtectionCaptchaException
+    BruteForceProtectionCaptchaException
 from rest_framework_security.brute_force_protection.protection import BruteForceProtection
 from rest_framework_security.utils.ip import get_client_ip
 from django.utils.translation import ugettext_lazy as _
