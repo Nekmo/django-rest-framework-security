@@ -7,10 +7,10 @@ from rest_framework_security.periodic_password_change import config
 
 
 @receiver(password_changed)
-def unset_require_change_password(sender, instance: AbstractUser, **kwargs):
+def unset_require_change_password(sender, user: AbstractUser, **kwargs):
     if not config.PERIODIC_PASSWORD_CHANGE_MODEL:
         return
     model_class = import_string(config.PERIODIC_PASSWORD_CHANGE_MODEL)
-    model = model_class.objects.get(user=instance)
+    model = model_class.objects.get(user=user)
     model.require_change_password = False
     model.save()
