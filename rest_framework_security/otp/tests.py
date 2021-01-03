@@ -6,7 +6,8 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from rest_framework_security.otp.models import OTPDevice
+from rest_framework_security.otp import config
+from rest_framework_security.otp.models import OTPDevice, OTPStatic
 
 
 class OTPDeviceViewSetTestCase(APITestCase):
@@ -37,3 +38,53 @@ class OTPDeviceViewSetTestCase(APITestCase):
                                     {'code': pyotp.totp.TOTP(otp_device.data['totp']).now()}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client.session['otp'], False)
+
+
+class OTPStaticViewSetTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.user: AbstractUser = get_user_model().objects.create(
+            username='demo', last_login=timezone.now(),
+        )
+
+    def test_create_otp_device_before(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpstatic-create-tokens'), format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_static_tokens_exists(self):
+        OTPDevice.objects.create(
+            otp_type='totp', destination_type='device', data={'totp': pyotp.random_base32()}, user=self.user
+        )
+        OTPStatic.objects.create(
+            user=self.user, token='0' * 16,
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpstatic-create-tokens'), format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_static_tokens(self):
+        OTPDevice.objects.create(
+            otp_type='totp', destination_type='device', data={'totp': pyotp.random_base32()}, user=self.user
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpstatic-create-tokens'), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), config.OTP_STATIC_TOKENS)
+
+    def test_use_static_token(self):
+        otp_static = OTPStatic.objects.create(
+            user=self.user, token='0' * 8,
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpstatic-use-token'), {'token': otp_static.token}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(OTPStatic.objects.count(), 0)
+        self.assertEqual(self.client.session['otp'], False)
+
+    def test_use_invalid_static_token(self):
+        OTPStatic.objects.create(
+            user=self.user, token='0' * 8,
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpstatic-use-token'), {'token': 'invalid'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
