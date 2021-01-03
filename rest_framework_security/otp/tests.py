@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase
 
 from rest_framework_security.otp import config
 from rest_framework_security.otp.models import OTPDevice, OTPStatic
+from rest_framework_security.otp.views import PngRenderer
 
 
 class OTPDeviceViewSetTestCase(APITestCase):
@@ -15,6 +16,14 @@ class OTPDeviceViewSetTestCase(APITestCase):
         self.user: AbstractUser = get_user_model().objects.create(
             username='demo', last_login=timezone.now(),
         )
+
+    def test_png(self):
+        req_data = {'otp_type': 'totp', 'destination_type': 'device'}
+        self.client.force_authenticate(self.user)
+        response = self.client.get(reverse('otpdevice-begin-register'),
+                                    req_data, format='png', HTTP_ACCEPT='image/png')
+        self.assertIsInstance(response.accepted_renderer, PngRenderer)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_totp_create(self):
         req_data = {'otp_type': 'totp', 'destination_type': 'device'}
@@ -36,6 +45,29 @@ class OTPDeviceViewSetTestCase(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('otpdevice-verify', kwargs={'pk': otp_device.pk}),
                                     {'code': pyotp.totp.TOTP(otp_device.data['totp']).now()}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.client.session['otp'], False)
+
+    def test_hotp_create(self):
+        req_data = {'otp_type': 'hotp', 'destination_type': 'device'}
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpdevice-begin-register'),
+                                    req_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        secret = response.json().get('uri').split('=')[1].split('&')[0]
+        code = pyotp.hotp.HOTP(secret).at(1)
+        response = self.client.post(reverse('otpdevice-list'),
+                                    dict(req_data, data={'code': code}), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(OTPDevice.objects.count(), 1)
+
+    def test_hotp_verify(self):
+        otp_device = OTPDevice.objects.create(
+            otp_type='hotp', destination_type='device', data={'hotp': pyotp.random_base32()}, user=self.user
+        )
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('otpdevice-verify', kwargs={'pk': otp_device.pk}),
+                                    {'code': pyotp.hotp.HOTP(otp_device.data['hotp']).at(0)}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.client.session['otp'], False)
 
