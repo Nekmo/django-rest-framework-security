@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/security/authentication/', include('rest_framework_security.authentication.urls')),
     path('api/security/brute_force_protection/', include('rest_framework_security.brute_force_protection.urls')),
     path('api/security/sudo/', include('rest_framework_security.sudo.urls')),
+    path('api/security/otp/', include('rest_framework_security.otp.urls')),
 ]
