@@ -111,6 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+    {
+        'NAME': 'rest_framework_security.deny_repeat_password.validation.DenyRepeatPasswordValidator',
+    },
 ]
 
 
