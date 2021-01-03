@@ -13,9 +13,9 @@ class Command(BaseCommand):
     help = 'Send inactive account alert emails to users'
 
     def add_arguments(self, parser):
-        parser.add_argument('min-days', type=int, default=config.INACTIVE_USERS_MIN_DAYS,
+        parser.add_argument('--min-days', type=int, default=config.INACTIVE_USERS_MIN_DAYS,
                             help=_('Minimum days to send alert of inactive users.'))
-        parser.add_argument('remaining-days', type=int, default=config.INACTIVE_USERS_REMAINING_DAYS,
+        parser.add_argument('--remaining-days', type=int, default=config.INACTIVE_USERS_REMAINING_DAYS,
                             help=_('remaining days to deactivate the account.'))
 
     def handle(self, *args, **options):

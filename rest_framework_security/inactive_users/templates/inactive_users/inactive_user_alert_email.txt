@@ -1,17 +1,17 @@
 {% load i18n %}{% autoescape off %}
 
 
-{% blocktrans %}Hello {{ user.first_name }} {{ user.last_name }},{% endblocktrans %}
+{% blocktrans with first_name=user.first_name last_name=user.last_name %}Hello {{ first_name }} {{ last_name }},{%endblocktrans %}
 
-{% blocktrans %}You have not authenticated with your user {{ user.get_username }} to the website
-{{ site_name }} since {% timesince user.last_login %}.
+{% blocktrans with username=user.get_username since_last_login=user.last_login|timesince %}
+You have not authenticated with your user {{username }} to the website {{ site_name }} since {{ since_last_login }}.
 For security reasons, your account will be deactivated in {{ remaining_days }} days.
 To prevent your account from being disabled, access the website with your username and password.
 {% endblocktrans %}
 
 {% blocktrans %}For security reasons, the link to the website is not found in this email.
 This measure aims to prevent phishing. Always enter the url in your browser for your safety.
-{% blocktrans %}
+{% endblocktrans %}
 
 {% trans "Thanks for using our site!" %}
 
