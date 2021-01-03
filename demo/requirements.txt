@@ -28,6 +28,7 @@ idna==2.10                # via requests, yarl
 jsonfield==3.1.0          # via -r ../requirements.in
 maxminddb==2.0.3          # via geoip2
 multidict==5.1.0          # via aiohttp, yarl
+pillow==8.1.0             # via -r ../requirements.in
 pycparser==2.20           # via cffi
 pyopenssl==20.0.1         # via webauthn
 pyotp==2.4.1              # via -r ../requirements.in
