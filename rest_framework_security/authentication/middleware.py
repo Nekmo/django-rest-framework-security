@@ -11,14 +11,17 @@ from django.utils.dateparse import parse_datetime
 
 from rest_framework_security.authentication import config
 from rest_framework_security.authentication.models import UserSession
-from rest_framework_security.authentication.next_steps import get_next_steps, get_admin_base_url
+from rest_framework_security.authentication.next_steps import (
+    get_next_steps,
+    get_admin_base_url,
+)
 from rest_framework_security.utils.ip import get_client_ip
 
 
 DEFAULT_ALLOWED_URLS = [
-    'authentication-next_steps',
-    'authentication-login',
-    'authentication-logout',
+    "authentication-next_steps",
+    "authentication-login",
+    "authentication-logout",
 ]
 
 
@@ -41,7 +44,7 @@ class AuthenticationMiddleware:
         session: SessionBase = request.session
         self.validate_and_renew_session(request, session)
         redirect = None
-        if not request.session.get('is_hijacked_user', False):
+        if not request.session.get("is_hijacked_user", False):
             # User is hijacked using django-hijack, skip next steps
             redirect = self.next_steps(request)
         if redirect:
@@ -50,13 +53,16 @@ class AuthenticationMiddleware:
         return response
 
     def next_steps(self, request):
-        admin_base_url = get_admin_base_url('index')
+        admin_base_url = get_admin_base_url("index")
         next_step_required = False
         allowed_urls = list(DEFAULT_ALLOWED_URLS)
         admin_redirect = None
         for next_step in get_next_steps():
             is_required = None
-            if request.user.is_authenticated and next_step.is_active(request) is not False:
+            if (
+                request.user.is_authenticated
+                and next_step.is_active(request) is not False
+            ):
                 is_required = next_step.is_required(request)
                 next_step.set_state(request, is_required)
                 next_step_required = next_step_required or is_required
@@ -65,31 +71,41 @@ class AuthenticationMiddleware:
                 admin_redirect = admin_redirect or next_step.get_admin_redirect()
         if next_step_required and is_path_allowed(request.path, allowed_urls):
             pass
-        elif next_step_required and admin_redirect and \
-                ((admin_base_url and request.path.startswith(admin_base_url)) or
-                 (request.path == getattr(settings, 'LOGIN_REDIRECT_URL', '/accounts/profile/'))):
+        elif (
+            next_step_required
+            and admin_redirect
+            and (
+                (admin_base_url and request.path.startswith(admin_base_url))
+                or (
+                    request.path
+                    == getattr(settings, "LOGIN_REDIRECT_URL", "/accounts/profile/")
+                )
+            )
+        ):
             return admin_redirect
         elif next_step_required:
             request.user = AnonymousUser()
 
     def validate_and_renew_session(self, request, session):
-        session_updated_at = parse_datetime(session.get('session_updated_at', ''))
-        max_session_renewal = parse_datetime(session.get('max_session_renewal', ''))
-        ip_address = session.get('ip_address', '')
+        session_updated_at = parse_datetime(session.get("session_updated_at", ""))
+        max_session_renewal = parse_datetime(session.get("max_session_renewal", ""))
+        ip_address = session.get("ip_address", "")
         renew_time = datetime.timedelta(seconds=config.AUTHENTICATION_RENEW_TIME)
         now = timezone.now()
         if ip_address and ip_address != get_client_ip(request):
             logout(request)
         elif not request.user.is_authenticated:
             return
-        elif session_updated_at and max_session_renewal and \
-                session_updated_at + renew_time < now <= max_session_renewal:
-            remember_me = session.get('remember_me')
+        elif (
+            session_updated_at
+            and max_session_renewal
+            and session_updated_at + renew_time < now <= max_session_renewal
+        ):
+            remember_me = session.get("remember_me")
             session.set_expiry(config.get_session_age(remember_me))
-            session['session_updated_at'] = now.isoformat()
+            session["session_updated_at"] = now.isoformat()
             user_session: Union[UserSession, None] = UserSession.objects.filter(
-                user=request.user,
-                session_key=session.session_key
+                user=request.user, session_key=session.session_key
             ).first()
             if user_session:
                 session_expires = now + datetime.timedelta(

@@ -15,13 +15,14 @@ class EmailBase:
 
     def get_context(self):
         return {
-            'user': self.user,
-            'site_name': self.site_name,
+            "user": self.user,
+            "site_name": self.site_name,
         }
 
     @property
     def site_name(self):
         from django.contrib.sites.models import Site
+
         return Site.objects.get(pk=self.site_id).name
 
     @property
@@ -35,12 +36,13 @@ class EmailBase:
     def send(self):
         context = self.get_context()
         subject = loader.render_to_string(self.subject_template_name, context)
-        subject = subject.replace('\n', '')
+        subject = subject.replace("\n", "")
         body = loader.render_to_string(self.email_template_name, context)
-        email_message = EmailMultiAlternatives(subject, body, self.from_email, [self.to_email],
-                                               connection=self.connection)
+        email_message = EmailMultiAlternatives(
+            subject, body, self.from_email, [self.to_email], connection=self.connection
+        )
         if self.html_email_template_name is not None:
             html_email = loader.render_to_string(self.html_email_template_name, context)
-            email_message.attach_alternative(html_email, 'text/html')
+            email_message.attach_alternative(html_email, "text/html")
 
         email_message.send()
