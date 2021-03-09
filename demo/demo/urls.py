@@ -17,10 +17,18 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/security/allowed_ips/', include('rest_framework_security.allowed_ips.urls')),
-    path('api/security/authentication/', include('rest_framework_security.authentication.urls')),
-    path('api/security/brute_force_protection/', include('rest_framework_security.brute_force_protection.urls')),
-    path('api/security/sudo/', include('rest_framework_security.sudo.urls')),
-    path('api/security/otp/', include('rest_framework_security.otp.urls')),
+    path("admin/", admin.site.urls),
+    path(
+        "api/security/allowed_ips/", include("rest_framework_security.allowed_ips.urls")
+    ),
+    path(
+        "api/security/authentication/",
+        include("rest_framework_security.authentication.urls"),
+    ),
+    path(
+        "api/security/brute_force_protection/",
+        include("rest_framework_security.brute_force_protection.urls"),
+    ),
+    path("api/security/sudo/", include("rest_framework_security.sudo.urls")),
+    path("api/security/otp/", include("rest_framework_security.otp.urls")),
 ]

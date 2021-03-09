@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class AuthenticationApp(AppConfig):
-    name = 'rest_framework_security.authentication'
+    name = "rest_framework_security.authentication"
 
     def ready(self):
         # noinspection PyUnresolvedReferences
