@@ -18,15 +18,21 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip codecov
-        pip install tox-gh-actions
-        pip install -r demo/requirements.txt
+        python -m pip install --upgrade pip codecov pip-tools
+        pip-sync dev-requirements.txt requirements.txt
 #    - name: Lint with flake8
 #      run: |
 #        # stop the build if there are Python syntax errors or undefined names
 #        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 #        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with mypy
+      run: |
+          mypy .
+    - name: Test with coverage
+      run: |
+          coverage run demo/manage.py test rest_framework_security
+          codecov
     - name: Test with coverage
       run: |
           coverage run demo/manage.py test rest_framework_security

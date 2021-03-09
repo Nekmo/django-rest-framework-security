@@ -1,0 +1,5 @@
+-c requirements.txt
+mypy
+django-stubs
+djangorestframework-stubs
+django-filter-stubs
