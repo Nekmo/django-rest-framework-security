@@ -24,7 +24,11 @@ def get_user_remaning_time(user: AbstractUser):
 def expire_now(user: AbstractUser) -> None:
     if not get_user_remaning_time(user):
         return
-    user.last_login = timezone.now() - config.REST_FRAMEWORK_SUDO_EXPIRATION - datetime.timedelta(seconds=1)
+    user.last_login = (
+        timezone.now()
+        - config.REST_FRAMEWORK_SUDO_EXPIRATION
+        - datetime.timedelta(seconds=1)
+    )
     user.save()
 
 
@@ -34,7 +38,7 @@ def get_expires_at(user: AbstractUser):
 
 def validate_sudo(request):
     if not get_user_remaning_time(request.user):
-        raise PermissionDenied('You need to authenticate again to perform this action.')
+        raise PermissionDenied("You need to authenticate again to perform this action.")
 
 
 def sudo_required(fn):
@@ -42,7 +46,8 @@ def sudo_required(fn):
     def wrapper(*args, **kwargs):
         request = get_request_argument(args, kwargs)
         if request is None:
-            raise AttributeError('request is not available')
+            raise AttributeError("request is not available")
         validate_sudo(request)
         return fn(*args, **kwargs)
+
     return wrapper

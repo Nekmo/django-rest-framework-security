@@ -9,25 +9,37 @@ class OTPDeviceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OTPDevice
-        read_only_fields = ('last_use_at', 'counter', 'is_active')
+        read_only_fields = ("last_use_at", "counter", "is_active")
         fields = (
-            'url', 'id', 'title', 'otp_type', 'destination_type', 'destination_value', 'data',
-            'counter', 'last_use_at', 'is_active', 'updated_at', 'created_at',
+            "url",
+            "id",
+            "title",
+            "otp_type",
+            "destination_type",
+            "destination_value",
+            "data",
+            "counter",
+            "last_use_at",
+            "is_active",
+            "updated_at",
+            "created_at",
         )
 
 
 class OTPDeviceCreateSerializer(OTPDeviceSerializer):
     def validate(self, attrs):
-        request = self.context['request']
+        request = self.context["request"]
         validated_data = super(OTPDeviceSerializer, self).validate(attrs)
-        validated_data['user'] = request.user
-        validated_data = get_engine(validated_data['otp_type']).confirm_register(request, validated_data)
+        validated_data["user"] = request.user
+        validated_data = get_engine(validated_data["otp_type"]).confirm_register(
+            request, validated_data
+        )
         return validated_data
 
 
 class OTPDeviceBeginRegisterSerializer(OTPDeviceSerializer):
     class Meta(OTPDeviceSerializer.Meta):
-        fields = ('otp_type', 'destination_type')
+        fields = ("otp_type", "destination_type")
 
 
 class OTPStaticSerializer(serializers.ModelSerializer):
@@ -35,15 +47,15 @@ class OTPStaticSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OTPStatic
-        fields = ('token',)
+        fields = ("token",)
 
 
 class OTPStaticObfuscatedSerializer(serializers.ModelSerializer):
     token = serializers.SerializerMethodField()
 
     def get_token(self, obj):
-        return '*' * 8
+        return "*" * 8
 
     class Meta:
         model = OTPStatic
-        fields = ('token',)
+        fields = ("token",)

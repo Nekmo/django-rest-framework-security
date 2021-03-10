@@ -7,7 +7,7 @@ from rest_framework_security.deny_repeat_password.managers import UserPasswordMa
 
 class UserPassword(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    password = models.CharField(_('password'), max_length=128)
+    password = models.CharField(_("password"), max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = UserPasswordManager()

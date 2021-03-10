@@ -15,6 +15,6 @@ def get_request_argument(args=(), kwargs=None) -> Union[Request, HttpRequest, No
         value = args[i]
         if is_request(value):
             return value
-    if 'request' in kwargs and is_request(kwargs['request']):
-        return kwargs['request']
+    if "request" in kwargs and is_request(kwargs["request"]):
+        return kwargs["request"]
     return None

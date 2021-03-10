@@ -6,12 +6,12 @@ from rest_framework_security.allowed_ips import config
 from rest_framework_security.allowed_ips.views import UserIpConfigViewSet, UserIpViewSet
 
 router = DefaultRouter()
-router.register('user_ips', UserIpViewSet)
+router.register("user_ips", UserIpViewSet)
 
 if config.ALLOWED_IPS_USER_IP_CONFIG_MODEL:
-    router.register('user_ip_configs', UserIpConfigViewSet, basename='user_ip_config')
+    router.register("user_ip_configs", UserIpConfigViewSet, basename="user_ip_config")
 
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
+    url(r"^", include(router.urls)),
 ]

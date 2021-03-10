@@ -9,9 +9,12 @@ class OTPDeviceEmail(EmailBase):
         self.device = device
 
     def get_context(self):
-        return dict(super(OTPDeviceEmail, self).get_context(),
-                    profile_url=config.OTP_PROFILE_URL or global_config.REST_FRAMEWORK_SECURITY_PROFILE_URL,
-                    device=self.device)
+        return dict(
+            super(OTPDeviceEmail, self).get_context(),
+            profile_url=config.OTP_PROFILE_URL
+            or global_config.REST_FRAMEWORK_SECURITY_PROFILE_URL,
+            device=self.device,
+        )
 
     @property
     def from_email(self):
@@ -19,12 +22,12 @@ class OTPDeviceEmail(EmailBase):
 
 
 class CreatedOTPDeviceEmail(OTPDeviceEmail):
-    subject_template_name = 'otp/created_otp_device_subject.txt'
-    email_template_name = 'otp/created_otp_device_email.txt'
-    html_email_template_name = 'otp/created_otp_device_email.html'
+    subject_template_name = "otp/created_otp_device_subject.txt"
+    email_template_name = "otp/created_otp_device_email.txt"
+    html_email_template_name = "otp/created_otp_device_email.html"
 
 
 class RemovedOTPDeviceEmail(OTPDeviceEmail):
-    subject_template_name = 'otp/removed_otp_device_subject.txt'
-    email_template_name = 'otp/removed_otp_device_email.txt'
-    html_email_template_name = 'otp/removed_otp_device_email.html'
+    subject_template_name = "otp/removed_otp_device_subject.txt"
+    email_template_name = "otp/removed_otp_device_email.txt"
+    html_email_template_name = "otp/removed_otp_device_email.html"

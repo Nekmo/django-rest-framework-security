@@ -8,9 +8,16 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from rest_framework_security.authentication.models import UserSession
-from rest_framework_security.authentication.next_steps import get_next_steps, get_next_required_steps
-from rest_framework_security.authentication.serializers import LoginSerializer, LogoutSerializer, UserSessionSerializer, \
-    NextStepSerializer
+from rest_framework_security.authentication.next_steps import (
+    get_next_steps,
+    get_next_required_steps,
+)
+from rest_framework_security.authentication.serializers import (
+    LoginSerializer,
+    LogoutSerializer,
+    UserSessionSerializer,
+    NextStepSerializer,
+)
 from rest_framework_security.brute_force_protection.views import protect_api_request
 from rest_framework_security.views import IsOwnerViewSetMixin
 from django.utils.translation import gettext_lazy as _
@@ -43,23 +50,31 @@ class NextStepAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return list(filter(lambda next_step: next_step.is_required(self.request), get_next_steps()))
+        return list(
+            filter(
+                lambda next_step: next_step.is_required(self.request), get_next_steps()
+            )
+        )
 
 
-class UserSessionAPIView(IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, ReadOnlyModelViewSet):
+class UserSessionAPIView(
+    IsOwnerViewSetMixin, viewsets.mixins.DestroyModelMixin, ReadOnlyModelViewSet
+):
     serializer_class = UserSessionSerializer
     permission_classes = (IsAuthenticated,)
     queryset = UserSession.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'purge':
+        if self.action == "purge":
             return serializers.Serializer
         else:
             return super(UserSessionAPIView, self).get_serializer_class()
 
-    @action(detail=False, methods=['POST'])
+    @action(detail=False, methods=["POST"])
     def purge(self, request, *args, **kwargs):
         session: SessionBase = request.session
-        queryset = self.filter_queryset(self.get_queryset()).exclude(session_key=session.session_key)
+        queryset = self.filter_queryset(self.get_queryset()).exclude(
+            session_key=session.session_key
+        )
         count = queryset.clean_and_delete()[0]
-        return Response({'detail': _('Removed {} sessions').format(count)})
+        return Response({"detail": _("Removed {} sessions").format(count)})

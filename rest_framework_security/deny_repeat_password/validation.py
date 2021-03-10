@@ -8,13 +8,12 @@ class DenyRepeatPasswordValidator:
 
     def validate(self, password, user=None):
         from rest_framework_security.deny_repeat_password.models import UserPassword
+
         if UserPassword.objects.filter(user=user).password_exists(password):
             raise ValidationError(
                 _("The new password has been used previously."),
-                code='deny_repeat_password',
+                code="deny_repeat_password",
             )
 
     def get_help_text(self):
-        return _(
-            "Your password must not have been previously used by your user."
-        )
+        return _("Your password must not have been previously used by your user.")

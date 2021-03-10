@@ -3,7 +3,7 @@ from rest_framework_security.otp.engines.base import OTPEngineBase
 
 
 class TOTPEngine(OTPEngineBase):
-    keyname = 'totp'
+    keyname = "totp"
 
     def get_otp_instance(self, secret):
         return pyotp.totp.TOTP(secret)

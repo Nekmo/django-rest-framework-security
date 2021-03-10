@@ -3,5 +3,5 @@
 """Top-level package for djangorestframework-sudo."""
 
 __author__ = """Nekmo"""
-__email__ = 'contacto@nekmo.com'
-__version__ = '0.1.0'
+__email__ = "contacto@nekmo.com"
+__version__ = "0.1.0"

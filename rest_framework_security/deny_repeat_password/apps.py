@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class DenyRepeatPasswordAppConfig(AppConfig):
-    name = 'rest_framework_security.deny_repeat_password'
+    name = "rest_framework_security.deny_repeat_password"
 
     def ready(self):
         # noinspection PyUnresolvedReferences

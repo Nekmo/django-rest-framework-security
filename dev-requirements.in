@@ -3,3 +3,4 @@ mypy
 django-stubs
 djangorestframework-stubs
 django-filter-stubs
+pre-commit

@@ -11,28 +11,30 @@ from rest_framework_security.inactive_users import config
 
 
 class InactiveUsersTestCase(TestCase):
-
-    @patch('rest_framework_security.emails.EmailMultiAlternatives')
+    @patch("rest_framework_security.emails.EmailMultiAlternatives")
     def test_inactive_user(self, m):
         last_login = timezone.now()
-        last_login -= timedelta(days=config.INACTIVE_USERS_MIN_DAYS + config.INACTIVE_USERS_REMAINING_DAYS)
-        user: AbstractUser = get_user_model().objects.create(
-            username='demo', last_login=last_login,
+        last_login -= timedelta(
+            days=config.INACTIVE_USERS_MIN_DAYS + config.INACTIVE_USERS_REMAINING_DAYS
         )
-        call_command('inactive_users')
+        user: AbstractUser = get_user_model().objects.create(
+            username="demo",
+            last_login=last_login,
+        )
+        call_command("inactive_users")
         self.assertFalse(get_user_model().objects.get(pk=user.pk).is_active)
         m.assert_called_once()
 
 
 class SendInactiveUserEmailsTestCase(TestCase):
-
-    @patch('rest_framework_security.emails.EmailMultiAlternatives')
+    @patch("rest_framework_security.emails.EmailMultiAlternatives")
     def test_inactive_user(self, m):
         last_login = timezone.now()
         last_login -= timedelta(days=config.INACTIVE_USERS_MIN_DAYS)
         user: AbstractUser = get_user_model().objects.create(
-            username='demo', last_login=last_login,
+            username="demo",
+            last_login=last_login,
         )
-        call_command('send_inactive_user_emails')
+        call_command("send_inactive_user_emails")
         m.assert_called_once()
         self.assertTrue(get_user_model().objects.get(pk=user.pk).is_active)

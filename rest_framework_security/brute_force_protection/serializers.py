@@ -5,9 +5,13 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from rest_framework_security.brute_force_protection import config
-from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionBanException, \
-    BruteForceProtectionCaptchaException
-from rest_framework_security.brute_force_protection.protection import BruteForceProtection
+from rest_framework_security.brute_force_protection.exceptions import (
+    BruteForceProtectionBanException,
+    BruteForceProtectionCaptchaException,
+)
+from rest_framework_security.brute_force_protection.protection import (
+    BruteForceProtection,
+)
 from rest_framework_security.utils.ip import get_client_ip
 from django.utils.translation import ugettext_lazy as _
 
@@ -21,11 +25,11 @@ class CaptchaSerializer(serializers.Serializer):
 
     def get_initial(self):
         return {
-            'public_key': config.BRUTE_FORCE_PROTECTION_RECAPTCHA_PUBLIC_KEY,
+            "public_key": config.BRUTE_FORCE_PROTECTION_RECAPTCHA_PUBLIC_KEY,
         }
 
     def validate_recaptcha_response(self, recaptcha_response):
-        request = self.context['request']
+        request = self.context["request"]
         ip = get_client_ip(request)
         try:
             check_captcha = client.submit(
@@ -35,23 +39,21 @@ class CaptchaSerializer(serializers.Serializer):
             )
         except _compat.HTTPError:  # Catch timeouts, etc
             raise ValidationError(
-                _("Error verifying reCAPTCHA, please try again."),
-                code="captcha_error"
+                _("Error verifying reCAPTCHA, please try again."), code="captcha_error"
             )
 
         if not check_captcha.is_valid:
             logger.error(
-                "ReCAPTCHA validation failed due to: %s" %
-                check_captcha.error_codes
+                "ReCAPTCHA validation failed due to: %s" % check_captcha.error_codes
             )
             raise ValidationError(
                 _("Error verifying reCAPTCHA, please try again."),
-                code="captcha_invalid"
+                code="captcha_invalid",
             )
-        return ''
+        return ""
 
     def create(self, validated_data):
-        request = self.context['request']
+        request = self.context["request"]
         ip = get_client_ip(request)
         BruteForceProtection(ip).set_soft_status(True)
         return self.get_initial()
@@ -62,17 +64,17 @@ class LoginProtectionSerializer(serializers.Serializer):
     detail = serializers.CharField(read_only=True)
 
     def get_initial(self):
-        request = self.context['request']
+        request = self.context["request"]
         ip = get_client_ip(request)
-        detail = ''
+        detail = ""
         try:
             BruteForceProtection(ip).validate()
         except BruteForceProtectionBanException as e:
-            status = 'banned'
-            detail = f'{e}'
+            status = "banned"
+            detail = f"{e}"
         except BruteForceProtectionCaptchaException as e:
-            status = 'captcha_required'
-            detail = f'{e}'
+            status = "captcha_required"
+            detail = f"{e}"
         else:
-            status = 'allowed'
-        return {'status': status, 'detail': detail}
+            status = "allowed"
+        return {"status": status, "detail": detail}

@@ -1,7 +1,10 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from rest_framework_security.otp.emails import CreatedOTPDeviceEmail, RemovedOTPDeviceEmail
+from rest_framework_security.otp.emails import (
+    CreatedOTPDeviceEmail,
+    RemovedOTPDeviceEmail,
+)
 from rest_framework_security.otp.models import OTPDevice
 
 

@@ -1,5 +1,3 @@
-
-
 class BruteForceProtectionException(Exception):
     pass
 

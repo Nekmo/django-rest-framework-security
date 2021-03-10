@@ -10,11 +10,11 @@ class StatusSerializer(serializers.Serializer):
     remaning_time = serializers.DurationField()
 
     def get_initial(self):
-        user = self.context['request'].user
+        user = self.context["request"].user
         remaning_time = get_user_remaning_time(user)
         return {
-            'remaning_time': remaning_time,
-            'is_expired': not remaning_time,
+            "remaning_time": remaning_time,
+            "is_expired": not remaning_time,
         }
 
 
@@ -22,15 +22,15 @@ class UpdateStatusSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate_password(self, raw_password):
-        user: AbstractUser = self.context['request'].user
+        user: AbstractUser = self.context["request"].user
         if not user.check_password(raw_password):
-            raise ValidationError('Invalid password')
+            raise ValidationError("Invalid password")
 
     def create(self, validated_data):
-        user: AbstractUser = self.context['request'].user
+        user: AbstractUser = self.context["request"].user
         user.last_login = timezone.now()
         user.save(update_fields=["last_login"])
-        return {'password': ''}
+        return {"password": ""}
 
 
 class ExpireNowSerializer(serializers.Serializer):
@@ -38,10 +38,10 @@ class ExpireNowSerializer(serializers.Serializer):
     is_expired = serializers.BooleanField(read_only=True)
 
     def create(self, validated_data):
-        user: AbstractUser = self.context['request'].user
+        user: AbstractUser = self.context["request"].user
         expire_now(user)
         remaning_time = get_user_remaning_time(user)
         return {
-            'remaning_time': remaning_time,
-            'is_expired': not remaning_time,
+            "remaning_time": remaning_time,
+            "is_expired": not remaning_time,
         }

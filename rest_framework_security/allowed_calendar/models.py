@@ -5,10 +5,10 @@ from django.utils.translation import ugettext_lazy as _
 
 
 CALENDAR_ACTIONS = [
-    ('allow', _('Allow access')),
-    ('req_2fa', _('Require multi-factor authentication')),
-    ('warn', _('Allow but send email')),
-    ('deny', _('Deny access')),
+    ("allow", _("Allow access")),
+    ("req_2fa", _("Require multi-factor authentication")),
+    ("warn", _("Allow but send email")),
+    ("deny", _("Deny access")),
 ]
 
 

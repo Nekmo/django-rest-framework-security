@@ -9,13 +9,13 @@ class UserPasswordQuerySet(models.QuerySet):
         user_passwords = self.filter(user=user)
         max_passwords = config.DENY_REPEAT_PASSWORD_MAX_SAVED_PASSWORDS
         if user_passwords.count() > max_passwords:
-            user_passwords = user_passwords.order_by('-created_at')
+            user_passwords = user_passwords.order_by("-created_at")
             first_last = user_passwords[max_passwords]
             to_remove = user_passwords.filter(pk__lte=first_last.pk)
             to_remove.delete()
 
     def password_exists(self, password):
-        last_passwords = self.values_list('password', flat=True)
+        last_passwords = self.values_list("password", flat=True)
         for last_password in last_passwords:
             if check_password(password, last_password):
                 return True

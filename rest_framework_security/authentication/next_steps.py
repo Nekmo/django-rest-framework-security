@@ -8,8 +8,8 @@ from django.utils.module_loading import import_string
 from rest_framework_security.periodic_password_change.utils import password_is_expired
 
 NEXT_STEP_APPS = [
-    'rest_framework_security.periodic_password_change',
-    'rest_framework_security.otp',
+    "rest_framework_security.periodic_password_change",
+    "rest_framework_security.otp",
 ]
 
 
@@ -42,30 +42,38 @@ class NextStepBase:
         return self.get_title()
 
     def get_title(self):
-        return ''
+        return ""
 
     @property
     def description(self):
         return self.get_description()
 
     def get_description(self):
-        return ''
+        return ""
 
 
 def get_next_steps() -> Iterator[NextStepBase]:
     next_step_apps = filter(apps.is_installed, NEXT_STEP_APPS)
-    next_steps = map(lambda x: import_string(f'{x}.auth_next_step.NextStep'), next_step_apps)
+    next_steps = map(
+        lambda x: import_string(f"{x}.auth_next_step.NextStep"), next_step_apps
+    )
     yield from map(lambda next_step: next_step(), next_steps)
 
 
 def get_next_required_steps(request) -> Iterator[str]:
-    yield from filter(bool,
-                      map(lambda next_step: next_step.step_name if next_step.is_required(request) else None,
-                          get_next_steps()))
+    yield from filter(
+        bool,
+        map(
+            lambda next_step: next_step.step_name
+            if next_step.is_required(request)
+            else None,
+            get_next_steps(),
+        ),
+    )
 
 
-def get_admin_base_url(name='index'):
+def get_admin_base_url(name="index"):
     try:
-        return reverse(f'admin:{name}')
+        return reverse(f"admin:{name}")
     except NoReverseMatch:
         return

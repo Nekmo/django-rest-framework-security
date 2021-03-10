@@ -4,8 +4,7 @@ from rest_framework_security.sudo.expiration import get_user_remaning_time
 
 
 class Sudo(BasePermission):
-    """
-    """
+    """"""
 
     def has_permission(self, request, view):
         user = request.user

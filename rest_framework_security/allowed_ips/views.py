@@ -5,40 +5,48 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_security.permissions import IsOwner
 from rest_framework_security.allowed_ips import config
 from rest_framework_security.allowed_ips.models import UserIp
-from rest_framework_security.allowed_ips.serializers import UserIpSerializer, CreateUserIpSerializer, \
-    UserIpConfigSerializer
+from rest_framework_security.allowed_ips.serializers import (
+    UserIpSerializer,
+    CreateUserIpSerializer,
+    UserIpConfigSerializer,
+)
 from rest_framework_security.views import IsOwnerViewSetMixin
 from rest_framework import filters
 
 
 class UserIpViewSet(IsOwnerViewSetMixin, ModelViewSet):
-    permission_classes = (
-        IsOwner,
+    permission_classes = (IsOwner,)
+    filter_backends = (
+        filters.OrderingFilter,
+        filters.SearchFilter,
+        DjangoFilterBackend,
     )
-    filter_backends = (filters.OrderingFilter, filters.SearchFilter, DjangoFilterBackend)
-    search_fields = (
-        'ip_address', 'action'
-    )
+    search_fields = ("ip_address", "action")
     serializer_class = UserIpSerializer
     ordering_fields = (
-        'id', 'ip_address', 'action', 'last_used_at', 'created_at', 'updated_at',
+        "id",
+        "ip_address",
+        "action",
+        "last_used_at",
+        "created_at",
+        "updated_at",
     )
     queryset = UserIp.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == "create":
             return CreateUserIpSerializer
         else:
             return UserIpSerializer
 
 
 class UserIpConfigViewSet(IsOwnerViewSetMixin, ModelViewSet):
-    permission_classes = (
-        IsOwner,
-    )
+    permission_classes = (IsOwner,)
     serializer_class = UserIpConfigSerializer
 
     def get_serializer_class(self):
         serializer_class = super(UserIpConfigViewSet, self).get_serializer_class()
-        serializer_class.Meta.model = import_string(config.ALLOWED_IPS_USER_IP_CONFIG_MODEL)
+        serializer_class.Meta.model = import_string(
+            config.ALLOWED_IPS_USER_IP_CONFIG_MODEL
+        )
         return serializer_class

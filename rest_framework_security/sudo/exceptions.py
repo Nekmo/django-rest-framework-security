@@ -5,17 +5,17 @@ import sys
 
 
 class RestFrameworkSudoError(Exception):
-    body = ''
+    body = ""
 
-    def __init__(self, extra_body=''):
+    def __init__(self, extra_body=""):
         self.extra_body = extra_body
 
     def __str__(self):
         msg = self.__class__.__name__
         if self.body:
-            msg += ': {}'.format(self.body)
+            msg += ": {}".format(self.body)
         if self.extra_body:
-            msg += ('. {}' if self.body else ': {}').format(self.extra_body)
+            msg += (". {}" if self.body else ": {}").format(self.extra_body)
         return msg
 
 
@@ -24,5 +24,8 @@ def catch(fn):
         try:
             fn(*args, **kwargs)
         except RestFrameworkSudoError as e:
-            sys.stderr.write('[Error] djangorestframework-sudo Exception:\n{}\n'.format(e))
+            sys.stderr.write(
+                "[Error] djangorestframework-sudo Exception:\n{}\n".format(e)
+            )
+
     return wrap

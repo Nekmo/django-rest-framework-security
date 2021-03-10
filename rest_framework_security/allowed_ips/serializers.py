@@ -9,23 +9,20 @@ logger = getLogger(__name__)
 
 
 class CreateUserIpSerializer(SetUserMixin, ModelSerializer):
-
     class Meta:
         model = UserIp
-        exclude = ('user',)
-        read_only_fields = ('last_used_at',)
+        exclude = ("user",)
+        read_only_fields = ("last_used_at",)
 
 
 class UserIpSerializer(GeoIPSerializerMixin, CreateUserIpSerializer):
-
     class Meta(CreateUserIpSerializer.Meta):
         read_only_fields = CreateUserIpSerializer.Meta.read_only_fields + (
-            'ip_address',
+            "ip_address",
         )
 
 
 class UserIpConfigSerializer(SetUserMixin, ModelSerializer):
-
     class Meta:
         model = None
-        fields = ('default_ip_action',)
+        fields = ("default_ip_action",)

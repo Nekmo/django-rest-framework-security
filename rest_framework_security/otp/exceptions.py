@@ -1,5 +1,3 @@
-
-
 class OTPException(Exception):
     pass
 

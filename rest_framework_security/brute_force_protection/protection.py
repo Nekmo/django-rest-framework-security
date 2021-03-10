@@ -1,7 +1,10 @@
 from django.core.cache import caches, DEFAULT_CACHE_ALIAS
 from rest_framework_security.brute_force_protection import config
-from rest_framework_security.brute_force_protection.exceptions import BruteForceProtectionException, \
-    BruteForceProtectionBanException, BruteForceProtectionCaptchaException
+from rest_framework_security.brute_force_protection.exceptions import (
+    BruteForceProtectionException,
+    BruteForceProtectionBanException,
+    BruteForceProtectionCaptchaException,
+)
 
 try:
     from redis_cache import RedisCache
@@ -17,10 +20,10 @@ class BruteForceProtection:
         self.ip = ip
 
     def get_cache_attemps_key(self):
-        return f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:{self.ip}'
+        return f"{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:{self.ip}"
 
     def get_cache_soft_key(self):
-        return f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:{self.ip}'
+        return f"{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:{self.ip}"
 
     def get_attempts(self):
         return cache.get(self.get_cache_attemps_key(), default=0)
@@ -32,8 +35,11 @@ class BruteForceProtection:
         """
         :value bool: True if the soft ban challenge has been overcome
         """
-        cache.set(self.get_cache_soft_key(), value,
-                  config.BRUTE_FORCE_PROTECTION_SOFT_EXPIRATION)
+        cache.set(
+            self.get_cache_soft_key(),
+            value,
+            config.BRUTE_FORCE_PROTECTION_SOFT_EXPIRATION,
+        )
 
     def increase_attempts(self):
         key = self.get_cache_attemps_key()
@@ -47,19 +53,29 @@ class BruteForceProtection:
 
     def list_keys(self, pattern):
         if RedisCache is not None and isinstance(cache, RedisCache):
-            return [x.decode('utf-8').split(':')[-1] for x in cache.get_master_client().keys(f':1:{pattern}')]
+            return [
+                x.decode("utf-8").split(":")[-1]
+                for x in cache.get_master_client().keys(f":1:{pattern}")
+            ]
         else:
             return []
 
     def list_failed_ips(self):
-        return self.list_keys(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:*')
+        return self.list_keys(
+            f"{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:failed:ip:*"
+        )
 
     def list_soft_ips(self):
-        return self.list_keys(f'{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:*')
+        return self.list_keys(f"{config.BRUTE_FORCE_PROTECTION_CACHE_PREFIX}:soft:ip:*")
 
     def validate(self):
         attemps = self.get_attempts()
         if attemps >= config.BRUTE_FORCE_PROTECTION_BAN_LIMIT:
-            raise BruteForceProtectionBanException('Your ip has been banned after several login attempts.')
-        if attemps >= config.BRUTE_FORCE_PROTECTION_SOFT_LIMIT and not self.get_soft_status():
-            raise BruteForceProtectionCaptchaException('Captcha is mandatory')
+            raise BruteForceProtectionBanException(
+                "Your ip has been banned after several login attempts."
+            )
+        if (
+            attemps >= config.BRUTE_FORCE_PROTECTION_SOFT_LIMIT
+            and not self.get_soft_status()
+        ):
+            raise BruteForceProtectionCaptchaException("Captcha is mandatory")
